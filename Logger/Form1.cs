@@ -69,8 +69,6 @@ namespace Logger
                 //Akceptacja klienta
                 TcpClient client = tcplistener.AcceptTcpClient();
 
-                
-
                 //Uruchomienie wątku dla klienta
                 Thread tcpHandlerThread = new Thread(new ParameterizedThreadStart(TCPHandler));
                 tcpHandlerThread.Start(client);
@@ -157,6 +155,11 @@ namespace Logger
         {
             base.OnFormClosing(e);
             System.Environment.Exit(1);
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
 
         }
     }
