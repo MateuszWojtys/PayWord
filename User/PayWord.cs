@@ -27,7 +27,7 @@ namespace User
            payWord.Add(hash);
 
            Console.WriteLine("Oto hash  :  " + hash + " z " + firstNumber);
-           Thread.Sleep(200);
+           Thread.Sleep(100);
 
             //Tworzenie i dodawanie kolejnych monet
             for(int i=0; i<payWordLength; i++)
