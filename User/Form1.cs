@@ -12,15 +12,20 @@ using System.Threading;
 using System.Net;
 using System.IO;
 
+
 namespace User
 {
     public partial class Form1 : Form
     {
+        PayWord c = new PayWord();
         public Form1()
         {
             InitializeComponent();
+            c.generatePayWord(10);
         }
 
+
+        
         //Metoda łącząca się z Loggerem
         public void connectAndSendToLogger()
         {
@@ -31,7 +36,7 @@ namespace User
             bw.Write(DateTime.Now.ToString() );
             bw.Write("User");
             bw.Write("Bank");
-            bw.Write("Tymczasowy tekst ");
+            bw.Write("Testowy tekst ");
             bw.Close();
             stream.Close();
             client.Close();
