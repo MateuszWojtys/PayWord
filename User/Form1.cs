@@ -69,7 +69,7 @@ namespace User
                 
                 labelLogowanie.Text = ("Zalogowano jako " + login);
                 
-                labelLogowanie.Show();
+                labelLogowanie.Show(); ///// nie działa?????????????
                 labelLogin.Dispose();
                 labelHasło.Dispose();
                 textBoxHasło.Dispose();
