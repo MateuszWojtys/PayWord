@@ -10,23 +10,29 @@ using System.Windows.Forms;
 
 namespace User
 {
+    //Okienko pozwalające na wpisanie danych potrzebnych do rejestracji
     public partial class Registration : Form
     {
 
+        // struktura odzwierciedlająca dane użytkownika do rejestracji
         public struct UserRegistrationData
         {
-            public string name;
-            public string lastName;
-            public string creditCard;
-            public string login;
-            public string password;
+            public string name; //imie
+            public string lastName; //nazwisko
+            public string creditCard; // nr karty kredytowej
+            public string login; // login
+            public string password; // hasło
         }
 
+        //Konstruktor okienka rejestracji
         public Registration()
         {
             InitializeComponent();
         }
 
+        //Pozwala na sprawdzenie poprawności danych wpisanych przez usera (głównie czy pola nie są puste)
+        // Sprawdzenie czy powtorzone haslo jest takie samo jak haslo poprzednie
+        // zwraca true jak jest wszystko ok, false jak nie
         public bool checkRegistrationData()
         {
             bool check = true;
@@ -64,6 +70,8 @@ namespace User
 
             return check;
         }
+
+        //Metoda pozwalająca na pobranie danych z textBoxow - stworzenie nowej struktury UserRegistrationData
         private UserRegistrationData getRegistrationData()
         {
             UserRegistrationData urd = new UserRegistrationData();
@@ -77,11 +85,13 @@ namespace User
         }
 
 
+        //Zamyka okienko po naciśnięciu Anuluj
         private void buttonAnuluj_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
+        //Pozwala na rejestracje - wysłanie do banku ........????????????????????????????? Trzeba dokonczyc
         private void buttonZarejestruj_Click(object sender, EventArgs e)
         {
             bool tmp = checkRegistrationData();

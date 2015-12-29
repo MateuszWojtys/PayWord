@@ -16,9 +16,13 @@ namespace User
         {
             getDataFromFile();
         }
+
+        //Sprawdzenie poprawności loginu i hasła - może powinno być po stronie banku?????????????????
         public bool checkUserData(string login, string password)
         {
             bool verify = false;
+
+            //Stworzenie hasha z podanego przez usera hasła
             MD5 md5Hash = MD5.Create();
             byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
             StringBuilder sBuilder = new StringBuilder();
@@ -26,10 +30,9 @@ namespace User
             {
                 sBuilder.Append(data[i].ToString("x2"));
             }
-
             string passwordHash = sBuilder.ToString();
            
-
+            //odszukanie na liscie loginu i sprawdzenie poprawnosci hasha
             List<string> list = new List<string>();
             foreach (string line in usersData)
             {
@@ -45,16 +48,18 @@ namespace User
                     }                       
                 }
             }
-
+            // zwraca true jak jest ok, false jak nie
             return verify;
         }
 
+        //Przypisanie wartosci z pliku tekstowego do listy
         private void getDataFromFile()
         {
             usersData = readData("Users.txt");
         }
 
 
+        //pobranie wartosci z pliku tekstowego i dodanie do listy
         private static ArrayList readData(string fileName)
         {
             ArrayList data = new ArrayList();
@@ -66,6 +71,7 @@ namespace User
             return data;
         }
 
+        //metoda pozwalająca na oddzielenie slow, ktore odzdzielone sa spacja
         private static List<string> parse(string line)
         {
             List<string> datas = new List<string>();

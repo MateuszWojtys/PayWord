@@ -59,21 +59,17 @@ namespace User
         public  string getMD5Hash(MD5 md5Hash, string input)
         {
 
-            // Convert the input string to a byte array and compute the hash.
+            // Konwersja stringa na bajty i uzyskanie hasha
             byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
 
-            // Create a new Stringbuilder to collect the bytes
-            // and create a string.
+           //przejscie z bajtow z powrotem na stringa (heksadecymalny)
             StringBuilder sBuilder = new StringBuilder();
-
-            // Loop through each byte of the hashed data 
-            // and format each one as a hexadecimal string.
             for (int i = 0; i < data.Length; i++)
             {
                 sBuilder.Append(data[i].ToString("x2"));
             }
 
-            // Return the hexadecimal string.
+            // zwraca hash - stringa
             return sBuilder.ToString();
         }
 

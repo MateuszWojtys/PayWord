@@ -23,10 +23,13 @@ namespace User
         public Form1()
         {
             InitializeComponent();
+
+            //Wygaszenie niepotrzebnych elementów, które nie powinny być dostępne przez poprawnym zalogowaniem
             disposeElements();
             //c.generatePayWord(10);
         }
 
+        //Metoda pozwalająca na wygaszenie elementów
         private void disposeElements()
         {
             buttonWyslij.Dispose();
@@ -51,19 +54,23 @@ namespace User
         }
 
       
-        //Przycisk odpowiedzialny za wysyłanie
+        //Przycisk odpowiedzialny za wysyłanie do Loggera
         private void buttonWyslij_Click(object sender, EventArgs e)
         {
             connectAndSendToLogger();
         }
 
+        //Metoda odpowiedzialna za logowanie
         private void buttonLogIn_Click(object sender, EventArgs e)
         {
+            //Pobranie wartosci z textBoxow - login i hasło
             string login = textBoxLogin.Text;
             string password = textBoxHasło.Text;
+
+            //Sprawdzenie poprawnosci loginu i hasła
             bool checking = logData.checkUserData(login, password);
 
-
+            //Odkrycie elementów i udostepnienie funkcjonalności po poprawnym zalogowaniu
             if (checking == true)
             {
                 
@@ -88,6 +95,7 @@ namespace User
 
         }
 
+        //Otwiera okienko do rejestracji
         private void linkLabelRejestracja_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Registration registration = new Registration();
