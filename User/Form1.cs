@@ -17,14 +17,21 @@ namespace User
 {
     public partial class Form1 : Form
     {
-        PayWord c = new PayWord();
+        PayWord payWord = new PayWord();
+        LoginData logData = new LoginData();
+
         public Form1()
         {
             InitializeComponent();
-            c.generatePayWord(10);
+            disposeElements();
+            //c.generatePayWord(10);
         }
 
-
+        private void disposeElements()
+        {
+            buttonWyslij.Dispose();
+            labelLogowanie.Dispose();
+        }
         
         //Metoda łącząca się z Loggerem
         public void connectAndSendToLogger()
@@ -45,9 +52,46 @@ namespace User
 
       
         //Przycisk odpowiedzialny za wysyłanie
-        private void button1_Click(object sender, EventArgs e)
+        private void buttonWyslij_Click(object sender, EventArgs e)
         {
             connectAndSendToLogger();
+        }
+
+        private void buttonLogIn_Click(object sender, EventArgs e)
+        {
+            string login = textBoxLogin.Text;
+            string password = textBoxHasło.Text;
+            bool checking = logData.checkUserData(login, password);
+
+
+            if (checking == true)
+            {
+                
+                labelLogowanie.Text = ("Zalogowano jako " + login);
+                
+                labelLogowanie.Show();
+                labelLogin.Dispose();
+                labelHasło.Dispose();
+                textBoxHasło.Dispose();
+                textBoxLogin.Dispose();
+                buttonLogIn.Dispose();
+            }
+            else
+            {
+                textBoxLogin.Text = "Błąd! Spróbuj jeszcze raz";
+                textBoxHasło.Text = "Błąd! Spróbuj jeszcze raz";
+            }
+        }
+
+        private void textBoxHasło_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void linkLabelRejestracja_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Registration registration = new Registration();
+            registration.ShowDialog();
         }
     }
 }

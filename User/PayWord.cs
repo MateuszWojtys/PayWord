@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Threading;
 namespace User
 {
-    class PayWord
+    public class PayWord
     {
 
         //Metoda pozwalająca na wygenerowanie łańcucha monet z parametrem, który mówi o długości łańcucha (ilość monet)
@@ -56,7 +56,7 @@ namespace User
         }
 
         //Metoda pozwalająca na uzyskanie hasha z stringa
-        static string getMD5Hash(MD5 md5Hash, string input)
+        public  string getMD5Hash(MD5 md5Hash, string input)
         {
 
             // Convert the input string to a byte array and compute the hash.
