@@ -42,6 +42,7 @@
             this.textBoxHaslo2 = new System.Windows.Forms.TextBox();
             this.buttonZarejestruj = new System.Windows.Forms.Button();
             this.buttonAnuluj = new System.Windows.Forms.Button();
+            this.labelBlad = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // labelImie
@@ -160,11 +161,22 @@
             this.buttonAnuluj.UseVisualStyleBackColor = true;
             this.buttonAnuluj.Click += new System.EventHandler(this.buttonAnuluj_Click);
             // 
+            // labelBlad
+            // 
+            this.labelBlad.AutoSize = true;
+            this.labelBlad.ForeColor = System.Drawing.Color.Red;
+            this.labelBlad.Location = new System.Drawing.Point(12, 23);
+            this.labelBlad.Name = "labelBlad";
+            this.labelBlad.Size = new System.Drawing.Size(277, 13);
+            this.labelBlad.TabIndex = 17;
+            this.labelBlad.Text = "Wystąpił nieoczekiwany błąd przy połączeniu z Bankiem";
+            // 
             // Registration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 277);
+            this.ClientSize = new System.Drawing.Size(292, 277);
+            this.Controls.Add(this.labelBlad);
             this.Controls.Add(this.buttonAnuluj);
             this.Controls.Add(this.buttonZarejestruj);
             this.Controls.Add(this.textBoxHaslo2);
@@ -202,5 +214,6 @@
         private System.Windows.Forms.TextBox textBoxHaslo2;
         private System.Windows.Forms.Button buttonZarejestruj;
         private System.Windows.Forms.Button buttonAnuluj;
+        private System.Windows.Forms.Label labelBlad;
     }
 }

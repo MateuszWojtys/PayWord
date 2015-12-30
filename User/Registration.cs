@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace User
 {
@@ -28,6 +32,7 @@ namespace User
         public Registration()
         {
             InitializeComponent();
+            labelBlad.Visible = false;
         }
 
         //Pozwala na sprawdzenie poprawności danych wpisanych przez usera (głównie czy pola nie są puste)
@@ -98,9 +103,40 @@ namespace User
             if (tmp == true)
             {
                 UserRegistrationData urd = getRegistrationData();
-                Console.WriteLine(urd.name);
+                sendUrdAsXML(urd);
             }
             
         }
+
+        private void sendUrdAsXML(UserRegistrationData urd)
+        {
+            try
+            {
+
+                TcpClient client = new TcpClient();
+                client.Connect("127.0.0.1", 5000);
+                NetworkStream stream = client.GetStream();
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(UserRegistrationData));
+                StringWriter sw = new StringWriter();
+                xmlSerializer.Serialize(sw, urd);
+                byte[] bufor = UnicodeEncoding.Unicode.GetBytes(sw.ToString());
+                MemoryStream MemoryStream = new MemoryStream();
+                GZipStream GZipStream = new GZipStream(MemoryStream, CompressionMode.Compress, true);
+                GZipStream.Write(bufor, 0, bufor.Length);
+                GZipStream.Flush();
+                GZipStream.Close();
+                stream.Write(MemoryStream.ToArray(), 0, (int)MemoryStream.Length);
+                MemoryStream.Close();
+                stream.Close();
+                this.Close();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                labelBlad.Visible = true;
+            }
+        }
+
+        
     }
 }

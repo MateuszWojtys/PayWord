@@ -32,8 +32,8 @@ namespace User
         //Metoda pozwalająca na wygaszenie elementów
         private void disposeElements()
         {
-            buttonWyslij.Dispose();
-            labelLogowanie.Dispose();
+            buttonWyslij.Visible = false;
+            labelLogowanie.Visible = false;
         }
         
         //Metoda łącząca się z Loggerem
@@ -76,12 +76,13 @@ namespace User
                 
                 labelLogowanie.Text = ("Zalogowano jako " + login);
                 
-                labelLogowanie.Show(); ///// nie działa?????????????
-                labelLogin.Dispose();
-                labelHasło.Dispose();
-                textBoxHasło.Dispose();
-                textBoxLogin.Dispose();
-                buttonLogIn.Dispose();
+                labelLogowanie.Visible = true;
+                buttonWyslij.Visible = true;
+                labelLogin.Visible = false;
+                labelHasło.Visible = false;
+                textBoxHasło.Visible = false;
+                textBoxLogin.Visible = false;
+                buttonLogIn.Visible = false;
             }
             else
             {
