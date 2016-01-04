@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -103,6 +104,8 @@ namespace User
             if (tmp == true)
             {
                 UserRegistrationData urd = getRegistrationData();
+                MD5 md5 = MD5.Create();
+                urd.password = getMD5Hash(md5, urd.password);
                 sendUrdAsXML(urd);
             }
             
@@ -137,6 +140,21 @@ namespace User
             }
         }
 
-        
+        public string getMD5Hash(MD5 md5Hash, string input)
+        {
+
+            // Konwersja stringa na bajty i uzyskanie hasha
+            byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
+
+            //przejscie z bajtow z powrotem na stringa (heksadecymalny)
+            StringBuilder sBuilder = new StringBuilder();
+            for (int i = 0; i < data.Length; i++)
+            {
+                sBuilder.Append(data[i].ToString("x2"));
+            }
+
+            // zwraca hash - stringa
+            return sBuilder.ToString();
+        }
     }
 }
