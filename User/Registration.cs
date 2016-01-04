@@ -97,7 +97,7 @@ namespace User
             this.Close();
         }
 
-        //Pozwala na rejestracje - wysłanie do banku ........????????????????????????????? Trzeba dokonczyc
+        //Pozwala na rejestracje - wysłanie do banku 
         private void buttonZarejestruj_Click(object sender, EventArgs e)
         {
             bool tmp = checkRegistrationData();
@@ -105,20 +105,27 @@ namespace User
             {
                 UserRegistrationData urd = getRegistrationData();
                 MD5 md5 = MD5.Create();
+                //tworzony jest hash z podanego hasła i to on jest wysyłany do banku
                 urd.password = getMD5Hash(md5, urd.password);
+                //Dane wysyłane są do banku jako plik xml
                 sendUrdAsXML(urd);
             }
             
         }
 
+        //Wysyłanie do banku pliku xml z danymi podanymi przez użytkownika jako parametr
         private void sendUrdAsXML(UserRegistrationData urd)
         {
             try
             {
-
+                //Tworzenie połączenia
                 TcpClient client = new TcpClient();
                 client.Connect("127.0.0.1", 5000);
                 NetworkStream stream = client.GetStream();
+                BinaryWriter bw = new BinaryWriter(stream);
+                //Wysłanie nagłówka wiadomości
+                bw.Write(Protocol.REGISTRATION);
+                //Serializacja i wysłanie xml-a
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(UserRegistrationData));
                 StringWriter sw = new StringWriter();
                 xmlSerializer.Serialize(sw, urd);
@@ -140,6 +147,7 @@ namespace User
             }
         }
 
+        //Tworzenie hasha ze stringa
         public string getMD5Hash(MD5 md5Hash, string input)
         {
 

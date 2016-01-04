@@ -1,6 +1,6 @@
 ﻿namespace User
 {
-    partial class Form1
+    partial class User
     {
         /// <summary>
         /// Required designer variable.
@@ -36,6 +36,8 @@
             this.buttonLogIn = new System.Windows.Forms.Button();
             this.labelLogowanie = new System.Windows.Forms.Label();
             this.linkLabelRejestracja = new System.Windows.Forms.LinkLabel();
+            this.buttonWyloguj = new System.Windows.Forms.Button();
+            this.linkLabelCertificate = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // buttonWyslij
@@ -111,11 +113,34 @@
             this.linkLabelRejestracja.Text = "Zarejestruj się";
             this.linkLabelRejestracja.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelRejestracja_LinkClicked);
             // 
+            // buttonWyloguj
+            // 
+            this.buttonWyloguj.Location = new System.Drawing.Point(197, 4);
+            this.buttonWyloguj.Name = "buttonWyloguj";
+            this.buttonWyloguj.Size = new System.Drawing.Size(75, 23);
+            this.buttonWyloguj.TabIndex = 8;
+            this.buttonWyloguj.Text = "Wyloguj";
+            this.buttonWyloguj.UseVisualStyleBackColor = true;
+            this.buttonWyloguj.Click += new System.EventHandler(this.buttonWyloguj_Click);
+            // 
+            // linkLabelCertificate
+            // 
+            this.linkLabelCertificate.AutoSize = true;
+            this.linkLabelCertificate.Location = new System.Drawing.Point(161, 29);
+            this.linkLabelCertificate.Name = "linkLabelCertificate";
+            this.linkLabelCertificate.Size = new System.Drawing.Size(122, 13);
+            this.linkLabelCertificate.TabIndex = 9;
+            this.linkLabelCertificate.TabStop = true;
+            this.linkLabelCertificate.Text = "Informacje o certyfikacie";
+            this.linkLabelCertificate.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelCertificate_LinkClicked);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 262);
+            this.Controls.Add(this.linkLabelCertificate);
+            this.Controls.Add(this.buttonWyloguj);
             this.Controls.Add(this.linkLabelRejestracja);
             this.Controls.Add(this.labelLogowanie);
             this.Controls.Add(this.buttonLogIn);
@@ -141,6 +166,8 @@
         private System.Windows.Forms.Button buttonLogIn;
         private System.Windows.Forms.Label labelLogowanie;
         private System.Windows.Forms.LinkLabel linkLabelRejestracja;
+        private System.Windows.Forms.Button buttonWyloguj;
+        private System.Windows.Forms.LinkLabel linkLabelCertificate;
     }
 }
 
