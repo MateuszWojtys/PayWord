@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -21,9 +22,13 @@ namespace Broker
        //DataTable przechowująca dane o użytkownikach
        public DataTable dt;
 
+        ArrayList passwords = new ArrayList();
         //Konstruktor  - inicjowane są obie powyższe listy
        public  Clients()
-        {   
+        {
+           //Pobranie danych o zarejestrowanych już klientach w systemie
+             getDataFromFile();
+           //Stworzenie list w których przechowywane będą odpowiednie dane
              usersRegistrationDatas = new List<UserRegistrationData>();
              usersData = new List<UserData>();
 
@@ -32,7 +37,7 @@ namespace Broker
              
         }
         
-        //struktura odpowiadająca certyfikatowi
+        //Struktura odpowiadająca certyfikatowi
         public struct UserCertificate
         {
             public string brokerName; // nazwa banku
@@ -55,19 +60,73 @@ namespace Broker
         // struktura odzwierciedlająca pełne dane użytkownika
         public struct UserData
         {
-            public UserCertificate certificate;
-            public UserRegistrationData urd;
+            public UserCertificate certificate; //certyfikat
+            public UserRegistrationData urd; //dane podane podczas rejestracji
+        }
+
+        //Metoda pozwalająca zweryfikować login i hash z hasła podczas logowania
+        public bool checkUserData(string login, string passwordHash)
+        {
+            bool verify = false;
+
+            //odszukanie na liscie loginu i sprawdzenie poprawnosci hasha
+            List<string> list = new List<string>();
+            foreach (string line in passwords)
+            {
+                list = parse(line.Trim());
+                if (list[0] == login)
+                {
+
+                    if (list[1] == passwordHash)
+                    {
+                        Console.WriteLine("Zalogowano");
+                        verify = true;
+                        break;
+                    }
+                }
+            }
+            return verify;
+        }
+
+        //Przypisanie wartosci z pliku tekstowego do listy
+        public void getDataFromFile()
+        {
+            passwords = readData("Passwords.txt");
         }
 
 
-        //Zapisywanie do XMla danych  użytkowników PRZEROBIC!!!!!!!!!!!!!!!!!!!!!!!!
+        //pobranie wartosci z pliku tekstowego i dodanie do listy
+        private static ArrayList readData(string fileName)
+        {
+            ArrayList data = new ArrayList();
+            string[] lines = System.IO.File.ReadAllLines(fileName);
+            foreach (string line in lines)
+            {
+                data.Add(line);
+            }
+            return data;
+        }
+
+        //metoda pozwalająca na oddzielenie slow, ktore odzdzielone sa spacja
+        private static List<string> parse(string line)
+        {
+            List<string> datas = new List<string>();
+            string[] temp = line.Split(' ');
+            foreach (string tmpChar in temp)
+            {
+                datas.Add(tmpChar);
+
+            }
+            return datas;
+        }
+        //Zapisywanie do XMla danych  użytkowników 
         public void writeToXMLUsers(DataTable dt)
         {
             dt.WriteXml("Users.xml");
         }
 
 
-        //Odczytywanie danych  uzytkownikow z xml PRZEROBIC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //Odczytywanie danych  uzytkownikow z xml 
         public void readFromXMLUsers( DataTable dt, List<UserData> users)
         {
             dt.ReadXml("Users.xml");
@@ -81,25 +140,35 @@ namespace Broker
             DataColumn login = new DataColumn("Login", typeof(string));
             DataColumn passwordHash = new DataColumn("Hash z hasła", typeof(string));
             DataColumn creditCard = new DataColumn("Numer karty kredytowej", typeof(string));
-            DataColumn certificate = new DataColumn("Certyfikat", typeof(bool));
+            
             DataColumn certificateDate = new DataColumn("Data wygaśnięcia certyfikatu", typeof(DateTime));
             dt.Columns.Add(name);
             dt.Columns.Add(login);
             dt.Columns.Add(passwordHash);
             dt.Columns.Add(creditCard);
-            dt.Columns.Add(certificate);
+            
             dt.Columns.Add(certificateDate);
         }
 
+        //Dodanie do pliku loginu i hashu z hasła nowego klienta (rejestracja)
+        public void addToPasswordList(string login, string password)
+        {
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"D:\Studia\PKRY\PayWord\Broker\Broker\bin\Debug\passwords.txt", true))
+            {
+                file.WriteLine(login + " " + password);
+            }  
+           
+        }
+
         //Metoda pozwalająca na dodanie nowego rekordu
-        public void addNewData(int id, string name, string login, string hash, string creditCard, bool cert, DateTime date)
+        public void addNewData(string name, string login, string hash, string creditCard,  DateTime date)
         {
             DataRow row = dt.NewRow();
             row["Nazwa klienta"] = name;
             row["Login"] = login;
             row["Hash z hasła"] = hash;
             row["Numer karty kredytowej"] = creditCard;
-            row["Certyfikat"] = cert;
+            
             row["Data wygaśnięcia certyfikatu"] = date;
             dt.Rows.Add(row);
 
@@ -111,7 +180,7 @@ namespace Broker
             uc.brokerName = "Bank";
             uc.userName = urd.name + " " + urd.lastName;
 
-            //Obliczanie daty wygaśnięcia certufikatu - miesiąc od obecnej daty
+            //Obliczanie daty wygaśnięcia certyfikatu - miesiąc od obecnej daty
             int year = DateTime.Now.Year;
             int month = DateTime.Now.Month;
             int day = DateTime.Now.Day;

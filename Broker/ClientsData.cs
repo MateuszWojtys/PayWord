@@ -14,22 +14,18 @@ namespace Broker
     public partial class ClientsData : Form
     {
 
-       
-
-        public bool isOpened = false;
         //Konstruktor danych klienta
         public ClientsData()
         {
             InitializeComponent();
-
-             
-
-             
+            this.Show();
+            this.Visible = false;
+            
         }
 
+        //Ustawienie źródła dla DTV w oknie
         public void setSourceForDTV(DataTable dt)
         {
-            //Ustawienie źródła dla DTV w oknie
             dataGridViewClientsData.DataSource = dt;
         }
         
@@ -47,11 +43,6 @@ namespace Broker
             Invoke(del);
         }
 
-        //Przeciązona metoda zamykania okna
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            base.OnFormClosing(e);
-            isOpened = false;
-        }
+        
     }
 }

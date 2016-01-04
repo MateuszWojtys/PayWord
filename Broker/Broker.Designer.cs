@@ -1,6 +1,6 @@
 ﻿namespace Broker
 {
-    partial class Form1
+    partial class Broker
     {
         /// <summary>
         /// Required designer variable.
@@ -42,14 +42,14 @@
             this.linkLabelDataUsers.Text = "Wyświetl dane o klientach";
             this.linkLabelDataUsers.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelDataUsers_LinkClicked);
             // 
-            // Form1
+            // Broker
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 262);
             this.Controls.Add(this.linkLabelDataUsers);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "Broker";
+            this.Text = "Broker";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
