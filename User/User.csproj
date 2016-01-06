@@ -66,11 +66,11 @@
     <Compile Include="Registration.Designer.cs">
       <DependentUpon>Registration.cs</DependentUpon>
     </Compile>
-    <Compile Include="RegistrationVerify.cs">
+    <Compile Include="Verify.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="RegistrationVerify.Designer.cs">
-      <DependentUpon>RegistrationVerify.cs</DependentUpon>
+    <Compile Include="Verify.Designer.cs">
+      <DependentUpon>Verify.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Certificate.resx">
       <DependentUpon>Certificate.cs</DependentUpon>
@@ -90,8 +90,8 @@
     <EmbeddedResource Include="Registration.resx">
       <DependentUpon>Registration.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="RegistrationVerify.resx">
-      <DependentUpon>RegistrationVerify.cs</DependentUpon>
+    <EmbeddedResource Include="Verify.resx">
+      <DependentUpon>Verify.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

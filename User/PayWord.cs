@@ -9,37 +9,69 @@ namespace User
 {
     public class PayWord
     {
+        public struct StructPayWord
+        {
+            public string basicCoin;
+            public List<string> payingCoins;
+        }
 
         //Metoda pozwalająca na wygenerowanie łańcucha monet z parametrem, który mówi o długości łańcucha (ilość monet)
-        public void generatePayWord(int payWordLength)
+        public StructPayWord generatePayWord(int payWordLength)
         {
            //Tworzenie klasy odpowiedzialnej za algorytm MD5
            MD5 md5 = MD5.Create();
 
            //Tworzenie listy - łańcucha monet
-           List<string> payWord = new List<string>();
-
+           StructPayWord spw = new StructPayWord();
+           spw.basicCoin = null;
+           spw.payingCoins = new List<string>();
            //Wylosowanie liczby
            string firstNumber = getRandomNumber();
            //Utworzenie hasha z liczby
            string hash = getMD5Hash(md5, firstNumber);
            //Dodanie do łańcucha monety
-           payWord.Add(hash);
+           spw.payingCoins.Add(hash); 
 
            Console.WriteLine("Oto hash  :  " + hash + " z " + firstNumber);
            Thread.Sleep(100);
-
+           Console.WriteLine("Ilosc monet przekazywanych: " + payWordLength);
             //Tworzenie i dodawanie kolejnych monet
             for(int i=0; i<payWordLength; i++)
             {
-                string tmp = hash;
+                string tmp;
+                if(i == payWordLength-1)
+                {
+                     tmp = hash;
+                    hash = getMD5Hash(md5, tmp);
+                    spw.basicCoin = hash;
+                    Console.WriteLine("Oto hash  :  " + hash + " z " + tmp);
+                }
+                else
+                {
+                 tmp = hash;
                 hash = getMD5Hash(md5, tmp);
                 Console.WriteLine("Oto hash  :  " + hash + " z " + tmp);
-                payWord.Add(hash);
+                spw.payingCoins.Add(hash);
+                Console.WriteLine(i);
+                }
+
             }
-            
+
+            spw.payingCoins = rotateList(spw.payingCoins);
+            return spw;
         }
 
+        private List<string> rotateList(List<string> input)
+        {
+            List<string> output = new List<string>();
+            for (int i = input.Count; i > 0; i--)
+            {
+                output.Add(input[i-1]);
+            }
+
+            return output;
+
+        }
         //Metoda pozwalająca na wylosowanie pierwszej liczby do łańcucha - liczba jest zwracana
         static string getRandomNumber()
         {

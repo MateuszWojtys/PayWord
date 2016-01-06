@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.buttonWyslij = new System.Windows.Forms.Button();
+            this.buttonZaplac = new System.Windows.Forms.Button();
             this.labelLogin = new System.Windows.Forms.Label();
             this.labelHasło = new System.Windows.Forms.Label();
             this.textBoxLogin = new System.Windows.Forms.TextBox();
@@ -38,17 +38,22 @@
             this.linkLabelRejestracja = new System.Windows.Forms.LinkLabel();
             this.buttonWyloguj = new System.Windows.Forms.Button();
             this.linkLabelCertificate = new System.Windows.Forms.LinkLabel();
+            this.buttonCoinsGeneration = new System.Windows.Forms.Button();
+            this.comboBoxCoins = new System.Windows.Forms.ComboBox();
+            this.numericUpDownCoinsNumber = new System.Windows.Forms.NumericUpDown();
+            this.labelCoins = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownCoinsNumber)).BeginInit();
             this.SuspendLayout();
             // 
-            // buttonWyslij
+            // buttonZaplac
             // 
-            this.buttonWyslij.Location = new System.Drawing.Point(95, 217);
-            this.buttonWyslij.Name = "buttonWyslij";
-            this.buttonWyslij.Size = new System.Drawing.Size(75, 23);
-            this.buttonWyslij.TabIndex = 0;
-            this.buttonWyslij.Text = "Wyślij";
-            this.buttonWyslij.UseVisualStyleBackColor = true;
-            this.buttonWyslij.Click += new System.EventHandler(this.buttonWyslij_Click);
+            this.buttonZaplac.Location = new System.Drawing.Point(95, 217);
+            this.buttonZaplac.Name = "buttonZaplac";
+            this.buttonZaplac.Size = new System.Drawing.Size(75, 23);
+            this.buttonZaplac.TabIndex = 0;
+            this.buttonZaplac.Text = "Zapłać";
+            this.buttonZaplac.UseVisualStyleBackColor = true;
+            this.buttonZaplac.Click += new System.EventHandler(this.buttonZaplac_Click);
             // 
             // labelLogin
             // 
@@ -134,11 +139,49 @@
             this.linkLabelCertificate.Text = "Informacje o certyfikacie";
             this.linkLabelCertificate.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelCertificate_LinkClicked);
             // 
-            // Form1
+            // buttonCoinsGeneration
+            // 
+            this.buttonCoinsGeneration.Location = new System.Drawing.Point(12, 137);
+            this.buttonCoinsGeneration.Name = "buttonCoinsGeneration";
+            this.buttonCoinsGeneration.Size = new System.Drawing.Size(98, 27);
+            this.buttonCoinsGeneration.TabIndex = 10;
+            this.buttonCoinsGeneration.Text = "Generuj monety";
+            this.buttonCoinsGeneration.UseVisualStyleBackColor = true;
+            this.buttonCoinsGeneration.Click += new System.EventHandler(this.buttonCoinsGeneration_Click);
+            // 
+            // comboBoxCoins
+            // 
+            this.comboBoxCoins.FormattingEnabled = true;
+            this.comboBoxCoins.Location = new System.Drawing.Point(12, 181);
+            this.comboBoxCoins.Name = "comboBoxCoins";
+            this.comboBoxCoins.Size = new System.Drawing.Size(260, 21);
+            this.comboBoxCoins.TabIndex = 11;
+            this.comboBoxCoins.Text = "Wybierz monetę";
+            // 
+            // numericUpDownCoinsNumber
+            // 
+            this.numericUpDownCoinsNumber.Location = new System.Drawing.Point(125, 142);
+            this.numericUpDownCoinsNumber.Name = "numericUpDownCoinsNumber";
+            this.numericUpDownCoinsNumber.Size = new System.Drawing.Size(34, 20);
+            this.numericUpDownCoinsNumber.TabIndex = 12;
+            // 
+            // labelCoins
+            // 
+            this.labelCoins.AutoSize = true;
+            this.labelCoins.Location = new System.Drawing.Point(159, 144);
+            this.labelCoins.Name = "labelCoins";
+            this.labelCoins.Size = new System.Drawing.Size(0, 13);
+            this.labelCoins.TabIndex = 13;
+            // 
+            // User
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 262);
+            this.ClientSize = new System.Drawing.Size(301, 262);
+            this.Controls.Add(this.labelCoins);
+            this.Controls.Add(this.numericUpDownCoinsNumber);
+            this.Controls.Add(this.comboBoxCoins);
+            this.Controls.Add(this.buttonCoinsGeneration);
             this.Controls.Add(this.linkLabelCertificate);
             this.Controls.Add(this.buttonWyloguj);
             this.Controls.Add(this.linkLabelRejestracja);
@@ -148,9 +191,10 @@
             this.Controls.Add(this.textBoxLogin);
             this.Controls.Add(this.labelHasło);
             this.Controls.Add(this.labelLogin);
-            this.Controls.Add(this.buttonWyslij);
-            this.Name = "Form1";
+            this.Controls.Add(this.buttonZaplac);
+            this.Name = "User";
             this.Text = "User";
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownCoinsNumber)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -158,7 +202,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Button buttonWyslij;
+        private System.Windows.Forms.Button buttonZaplac;
         private System.Windows.Forms.Label labelLogin;
         private System.Windows.Forms.Label labelHasło;
         private System.Windows.Forms.TextBox textBoxLogin;
@@ -168,6 +212,10 @@
         private System.Windows.Forms.LinkLabel linkLabelRejestracja;
         private System.Windows.Forms.Button buttonWyloguj;
         private System.Windows.Forms.LinkLabel linkLabelCertificate;
+        private System.Windows.Forms.Button buttonCoinsGeneration;
+        private System.Windows.Forms.ComboBox comboBoxCoins;
+        private System.Windows.Forms.NumericUpDown numericUpDownCoinsNumber;
+        private System.Windows.Forms.Label labelCoins;
     }
 }
 

@@ -12,12 +12,17 @@ using System.Threading;
 using System.Net;
 using System.IO;
 using System.Security.Cryptography;
+using System.Xml.Serialization;
+using System.IO.Compression;
 
 
 namespace User
 {
     public partial class User : Form
     {
+        //Lista monet
+        PayWord.StructPayWord spw = new PayWord.StructPayWord();
+
         PayWord payWord = new PayWord();
         
         //string przechowująca login podany podczas logowania - wykorzystywane do pobierania informacji o certyfikacie
@@ -29,9 +34,9 @@ namespace User
             InitializeComponent();
 
             //Wygaszenie niepotrzebnych elementów, które nie powinny być dostępne przez poprawnym zalogowaniem
-            notShowElements();
+            dontShowElements();
 
-            //c.generatePayWord(10);??????????????????????????????????????/usunac jak zrobi sie generacje monet w odpowiedniem miejscu
+         
 
             //Nasłuchiwanie na klientów TCP
             Thread tcpServerStartThread = new Thread(new ThreadStart(TcpServerStart));
@@ -82,10 +87,20 @@ namespace User
                 //Obsługa gdy odebrany zostanie nagłówek odpowiedzialny za wynik rejestracji
                 case "#RegistrationVerify":
                     //Pokazywane jest okno, które informuje i poprawnym wyniku weryfikacji
-                    RegistrationVerify rv = new RegistrationVerify();
+                    Verify rv = new Verify("Zarejestrowano pomyślnie");
                     rv.ShowDialog();
                     break;
 
+                case "#PaymentVerify":
+                    bool ver = br.ReadBoolean();
+                    string coin = br.ReadString();
+                    Verify v = new Verify("Płatność monetą: " + coin +" została przyjęta");
+                    v.ShowDialog();
+
+                    break;
+
+
+                   
 
                 default:
                     break;
@@ -93,12 +108,15 @@ namespace User
         }
 
         //Metoda pozwalająca na wygaszenie elementów - wygaszane są gdy klient nie jest zalogowany
-        private void notShowElements()
+        private void dontShowElements()
         {
             buttonWyloguj.Visible = false;
-            buttonWyslij.Visible = false;
+            buttonZaplac.Visible = false;
             labelLogowanie.Visible = false;
             linkLabelCertificate.Visible = false;
+            buttonCoinsGeneration.Visible = false;
+            comboBoxCoins.Visible = false;
+            numericUpDownCoinsNumber.Visible = false;
         }
         
         //Metoda łącząca się z Loggerem
@@ -118,13 +136,103 @@ namespace User
             
         }
 
-      
-        //Przycisk odpowiedzialny za wysyłanie do Loggera
-        private void buttonWyslij_Click(object sender, EventArgs e)
+      public struct UserCommitment
+      {
+          public string vendorName;
+          public string basicCoin;
+          public string date;
+          public string legthOfPayword;
+      }
+
+        private UserCommitment generateCommitmentToVendor()
+      {
+          
+          UserCommitment com = new UserCommitment();
+          com.vendorName = "Sprzedawca";
+          com.basicCoin = spw.basicCoin;
+          com.date = DateTime.Now.ToString();
+          com.legthOfPayword = spw.payingCoins.Count.ToString();
+          return com;
+      }
+
+        //Przycisk odpowiedzialny za dokonywanie płatności - przesyłanie monet do sprzedawcy
+        private void buttonZaplac_Click(object sender, EventArgs e)
         {
-            connectAndSendToLogger();
+            TcpClient client = new TcpClient();
+            client.Connect("127.0.0.1", 5002);
+            NetworkStream stream = client.GetStream();
+            BinaryWriter bw = new BinaryWriter(stream);
+            List<string> payment = makePayment();
+            if(payment[1] == "1")
+            {
+                bw.Write(Protocol.FIRSTPAYMENT);
+                
+                Certificate c = new Certificate(mainLogin);
+                bw.Write(c.getCertificateDatas(mainLogin)[1]);
+                bw.Write(c.getCertificate(mainLogin));
+                
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(UserCommitment));
+                StringWriter sw = new StringWriter();
+                xmlSerializer.Serialize(sw, generateCommitmentToVendor());
+                byte[] bufor = UnicodeEncoding.Unicode.GetBytes(sw.ToString());
+                MemoryStream ms = new MemoryStream();
+                GZipStream gzip = new GZipStream(ms, CompressionMode.Compress, true);
+                gzip.Write(bufor, 0, bufor.Length);
+                gzip.Flush();
+                gzip.Close();
+                stream.Write(ms.ToArray(), 0, (int)ms.Length);
+                ms.Close();
+                
+                bw.Write(payment[0]);
+                bw.Write(payment[1]);
+                stream.Close();
+            }
+            else
+            {
+                bw.Write(Protocol.PAYMENT);
+                Certificate c = new Certificate(mainLogin);
+                bw.Write(c.getCertificateDatas(mainLogin)[1]);
+                bw.Write(payment[0]);
+                bw.Write(payment[1]);
+                stream.Close();
+            }
+            
+            client.Close();
+
+            comboBoxCoins.Items.Remove(comboBoxCoins.SelectedItem);
+            comboBoxCoins.Text = "Wybierz monetę";
         }
 
+        private List<string> makePayment()
+        {
+            List<string> payment = new List<string>();
+            string text = comboBoxCoins.Text;
+            if(text == "Wybierz monetę")
+            {
+                //WYBierz monete!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            }
+            else
+            {
+                
+                List<string> datas = new List<string>();
+                string[] temp = text.Split(' ');
+                foreach (string tmpChar in temp)
+                {
+                     datas.Add(tmpChar);
+                }
+                string[] tmp = datas[0].Split('.');
+
+                string coinNumber = tmp[0];
+                
+                string coin = datas[1];
+                payment.Add(coin);
+                payment.Add(coinNumber);
+            }
+
+            return payment;
+            
+
+        }
         //Metoda odpowiedzialna za logowanie
         private void buttonLogIn_Click(object sender, EventArgs e)
         {
@@ -173,10 +281,13 @@ namespace User
                 setLabel(labelLogowanie, "Zalogowano jako " + login);
                 Func<int> del = delegate()
                 {
+                    numericUpDownCoinsNumber.Visible = true;
                     linkLabelCertificate.Visible = true;
                     labelLogowanie.Visible = true;
-                    buttonWyslij.Visible = true;
+                    buttonZaplac.Visible = true;
                     buttonWyloguj.Visible = true;
+                    buttonCoinsGeneration.Visible = true;
+                    comboBoxCoins.Visible = true;
                     labelLogin.Visible = false;
                     labelHasło.Visible = false;
                     textBoxHasło.Visible = false;
@@ -250,7 +361,7 @@ namespace User
                 textBoxLogin.Clear();
                 linkLabelCertificate.Visible = false;
                 labelLogowanie.Visible = false;
-                buttonWyslij.Visible = false;
+                buttonZaplac.Visible = false;
                 labelLogin.Visible = true;
                 labelHasło.Visible = true;
                 textBoxHasło.Visible = true;
@@ -258,16 +369,45 @@ namespace User
                 buttonLogIn.Visible = true;
                 linkLabelRejestracja.Visible = true;
                 buttonWyloguj.Visible = false;
+                buttonCoinsGeneration.Visible = false;
+                comboBoxCoins.Visible = false;
+                numericUpDownCoinsNumber.Visible = false;
                 return 0;
             };
             Invoke(del);
         }
 
-        //Pokazanie okna z danycmi cetryfikatu
+        //Pokazanie okna z danymi cetryfikatu
         private void linkLabelCertificate_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Certificate c = new Certificate(mainLogin);
             c.Show();
+        }
+
+        //Przycis pozwalający na wygenerowanie monet
+        private void buttonCoinsGeneration_Click(object sender, EventArgs e)
+        {
+            
+            
+            int numberOfCoins = (int)numericUpDownCoinsNumber.Value;
+
+            //Tworzenie monet z parametrem ilości tworoznych monet
+            if(numberOfCoins == 0 || numberOfCoins <0)
+            {
+                //OKienko błąd!@!!!!!!!!!!!!!!!!!!!!!!!!!! wybierz ilosc mnet wieksza od 0
+            }
+            else
+            {
+                spw = payWord.generatePayWord(numberOfCoins);
+                labelCoins.Text = "Wygenerowano " + numberOfCoins + " monet/y.";
+            }
+
+            //Dodawanie stworzonych monet do comboBoxa w okienku
+            for (int i = 0; i < spw.payingCoins.Count ; i++)
+            {
+                comboBoxCoins.Items.Add((i+1).ToString() + ". " + spw.payingCoins[i]);
+            }
+
         }
     }
 }

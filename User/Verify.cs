@@ -11,11 +11,12 @@ using System.Windows.Forms;
 namespace User
 {
     //Okno pokazujące wynik rejestracji
-    public partial class RegistrationVerify : Form
+    public partial class Verify : Form
     {
-        public RegistrationVerify()
+        public Verify( string text)
         {
             InitializeComponent();
+            labelVerify.Text = text;
         }
 
         private void buttonOK_Click(object sender, EventArgs e)

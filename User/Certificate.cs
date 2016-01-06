@@ -20,7 +20,7 @@ namespace User
         {
             InitializeComponent();
             //Pobranie odpowiedniego certyfikatu
-            List<string> info = getCertificate(login);
+            List<string> info = getCertificateDatas(login);
             //Wyświtlenie danych z certyfikatu w oknie
             showInfo(info[0], info[1], info[2]);
         }
@@ -35,7 +35,7 @@ namespace User
         }
 
         //Pobranie certyfikatu i przypisanie informacji do listy stringów
-        public List<string> getCertificate(string loginAsFileName)
+        public List<string> getCertificateDatas(string loginAsFileName)
         {
             List<string> list = new List<string>();
           //Deserializacja - odczytanie odpowiedniego (po loginie) pliku xml i właściwa deserializacja
@@ -48,6 +48,14 @@ namespace User
             list.Add(tmp.userName);
             list.Add(tmp.expirationDate.ToString());
             return list;
+        }
+
+        //zwraca xmla ktory zawiera certyfikat
+        public string getCertificate(string loginAsFileName)
+        {
+            
+            string x = System.IO.File.ReadAllText(@"D:\Studia\PKRY\PayWord\" + loginAsFileName + ".xml");
+            return x;
         }
         //Pokazanie informacji w oknie
         public void showInfo(string broker, string user, string date)
