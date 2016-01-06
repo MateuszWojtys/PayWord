@@ -1,6 +1,6 @@
 ﻿namespace Vendor
 {
-    partial class Form1
+    partial class Vendor
     {
         /// <summary>
         /// Required designer variable.
@@ -28,9 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.SuspendLayout();
+            // 
+            // Vendor
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(341, 238);
+            this.Name = "Vendor";
+            this.Text = "Vendor";
+            this.ResumeLayout(false);
+
         }
 
         #endregion
