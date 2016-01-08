@@ -55,7 +55,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(219, 81);
+            this.ClientSize = new System.Drawing.Size(652, 81);
             this.Controls.Add(this.buttonOK);
             this.Controls.Add(this.labelVerify);
             this.Name = "Verify";

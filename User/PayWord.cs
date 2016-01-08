@@ -57,7 +57,15 @@ namespace User
 
             }
 
-            spw.payingCoins = rotateList(spw.payingCoins);
+            for (int i = 0; i < spw.payingCoins.Count; i ++ )
+            {
+                Console.WriteLine("Moneta " + i + " " + spw.payingCoins[i]);
+            }
+                spw.payingCoins = rotateList(spw.payingCoins);
+                for (int i = 0; i < spw.payingCoins.Count; i++)
+                {
+                    Console.WriteLine("Po odwroceniu moneta " + i + " " + spw.payingCoins[i]);
+                }
             return spw;
         }
 

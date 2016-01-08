@@ -94,7 +94,15 @@ namespace User
                 case "#PaymentVerify":
                     bool ver = br.ReadBoolean();
                     string coin = br.ReadString();
-                    Verify v = new Verify("Płatność monetą: " + coin +" została przyjęta");
+                    Verify v;
+                    if (ver == true)
+                    {
+                         v = new Verify("Płatność monetą: " + coin + " została przyjęta");
+                    }
+                    else
+                    {
+                         v = new Verify("Płatność monetą: " + coin + " nie została przyjęta");
+                    }
                     v.ShowDialog();
 
                     break;
@@ -117,6 +125,7 @@ namespace User
             buttonCoinsGeneration.Visible = false;
             comboBoxCoins.Visible = false;
             numericUpDownCoinsNumber.Visible = false;
+            buttonCommitment.Visible = false;
         }
         
         //Metoda łącząca się z Loggerem
@@ -163,39 +172,14 @@ namespace User
             NetworkStream stream = client.GetStream();
             BinaryWriter bw = new BinaryWriter(stream);
             List<string> payment = makePayment();
-            if(payment[1] == "1")
-            {
-                bw.Write(Protocol.FIRSTPAYMENT);
-                
-                Certificate c = new Certificate(mainLogin);
-                bw.Write(c.getCertificateDatas(mainLogin)[1]);
-                bw.Write(c.getCertificate(mainLogin));
-                
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(UserCommitment));
-                StringWriter sw = new StringWriter();
-                xmlSerializer.Serialize(sw, generateCommitmentToVendor());
-                byte[] bufor = UnicodeEncoding.Unicode.GetBytes(sw.ToString());
-                MemoryStream ms = new MemoryStream();
-                GZipStream gzip = new GZipStream(ms, CompressionMode.Compress, true);
-                gzip.Write(bufor, 0, bufor.Length);
-                gzip.Flush();
-                gzip.Close();
-                stream.Write(ms.ToArray(), 0, (int)ms.Length);
-                ms.Close();
-                
-                bw.Write(payment[0]);
-                bw.Write(payment[1]);
-                stream.Close();
-            }
-            else
-            {
+            
                 bw.Write(Protocol.PAYMENT);
                 Certificate c = new Certificate(mainLogin);
                 bw.Write(c.getCertificateDatas(mainLogin)[1]);
                 bw.Write(payment[0]);
                 bw.Write(payment[1]);
                 stream.Close();
-            }
+            
             
             client.Close();
 
@@ -227,12 +211,51 @@ namespace User
                 string coin = datas[1];
                 payment.Add(coin);
                 payment.Add(coinNumber);
+
+                string s = comboBoxCoins.Items[0].ToString();
+                string[] x = s.Split(' ');
+                x = x[0].Split('.');
+                int p = Convert.ToInt32(x[0]);
+                if(p < Convert.ToInt32(coinNumber))
+                {
+                    comboBoxCoins.Items.RemoveAt(0);
+                }
+                
             }
 
             return payment;
             
 
         }
+        private void buttonCommitment_Click(object sender, EventArgs e)
+        {
+            TcpClient client = new TcpClient();
+            client.Connect("127.0.0.1", 5002);
+            NetworkStream stream = client.GetStream();
+            BinaryWriter bw = new BinaryWriter(stream);
+            bw.Write(Protocol.COMMITMENT);
+
+            Certificate c = new Certificate(mainLogin);
+            bw.Write(c.getCertificateDatas(mainLogin)[1]);
+            bw.Write(c.getCertificate(mainLogin));
+
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(UserCommitment));
+            StringWriter sw = new StringWriter();
+            xmlSerializer.Serialize(sw, generateCommitmentToVendor());
+            byte[] bufor = UnicodeEncoding.Unicode.GetBytes(sw.ToString());
+            MemoryStream ms = new MemoryStream();
+            GZipStream gzip = new GZipStream(ms, CompressionMode.Compress, true);
+            gzip.Write(bufor, 0, bufor.Length);
+            gzip.Flush();
+            gzip.Close();
+            stream.Write(ms.ToArray(), 0, (int)ms.Length);
+            ms.Close();
+            client.Close();
+
+            buttonZaplac.Visible = true;
+        }
+
+
         //Metoda odpowiedzialna za logowanie
         private void buttonLogIn_Click(object sender, EventArgs e)
         {
@@ -284,7 +307,7 @@ namespace User
                     numericUpDownCoinsNumber.Visible = true;
                     linkLabelCertificate.Visible = true;
                     labelLogowanie.Visible = true;
-                    buttonZaplac.Visible = true;
+                    buttonZaplac.Visible = false;
                     buttonWyloguj.Visible = true;
                     buttonCoinsGeneration.Visible = true;
                     comboBoxCoins.Visible = true;
@@ -359,6 +382,7 @@ namespace User
             {
                 textBoxHasło.Clear();
                 textBoxLogin.Clear();
+                labelCoins.Visible = false;
                 linkLabelCertificate.Visible = false;
                 labelLogowanie.Visible = false;
                 buttonZaplac.Visible = false;
@@ -372,6 +396,7 @@ namespace User
                 buttonCoinsGeneration.Visible = false;
                 comboBoxCoins.Visible = false;
                 numericUpDownCoinsNumber.Visible = false;
+                buttonCommitment.Visible = false;
                 return 0;
             };
             Invoke(del);
@@ -408,6 +433,8 @@ namespace User
                 comboBoxCoins.Items.Add((i+1).ToString() + ". " + spw.payingCoins[i]);
             }
 
+            buttonCommitment.Visible = true;
         }
+
     }
 }

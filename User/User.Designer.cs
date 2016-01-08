@@ -42,12 +42,13 @@
             this.comboBoxCoins = new System.Windows.Forms.ComboBox();
             this.numericUpDownCoinsNumber = new System.Windows.Forms.NumericUpDown();
             this.labelCoins = new System.Windows.Forms.Label();
+            this.buttonCommitment = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownCoinsNumber)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonZaplac
             // 
-            this.buttonZaplac.Location = new System.Drawing.Point(95, 217);
+            this.buttonZaplac.Location = new System.Drawing.Point(197, 217);
             this.buttonZaplac.Name = "buttonZaplac";
             this.buttonZaplac.Size = new System.Drawing.Size(75, 23);
             this.buttonZaplac.TabIndex = 0;
@@ -173,11 +174,22 @@
             this.labelCoins.Size = new System.Drawing.Size(0, 13);
             this.labelCoins.TabIndex = 13;
             // 
+            // buttonCommitment
+            // 
+            this.buttonCommitment.Location = new System.Drawing.Point(15, 217);
+            this.buttonCommitment.Name = "buttonCommitment";
+            this.buttonCommitment.Size = new System.Drawing.Size(176, 23);
+            this.buttonCommitment.TabIndex = 14;
+            this.buttonCommitment.Text = "Wyślij commitment";
+            this.buttonCommitment.UseVisualStyleBackColor = true;
+            this.buttonCommitment.Click += new System.EventHandler(this.buttonCommitment_Click);
+            // 
             // User
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(301, 262);
+            this.Controls.Add(this.buttonCommitment);
             this.Controls.Add(this.labelCoins);
             this.Controls.Add(this.numericUpDownCoinsNumber);
             this.Controls.Add(this.comboBoxCoins);
@@ -216,6 +228,7 @@
         private System.Windows.Forms.ComboBox comboBoxCoins;
         private System.Windows.Forms.NumericUpDown numericUpDownCoinsNumber;
         private System.Windows.Forms.Label labelCoins;
+        private System.Windows.Forms.Button buttonCommitment;
     }
 }
 
