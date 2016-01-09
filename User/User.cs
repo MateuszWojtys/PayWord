@@ -397,6 +397,7 @@ namespace User
                 comboBoxCoins.Visible = false;
                 numericUpDownCoinsNumber.Visible = false;
                 buttonCommitment.Visible = false;
+                comboBoxCoins.Items.Clear();
                 return 0;
             };
             Invoke(del);
