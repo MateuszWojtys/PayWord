@@ -22,14 +22,14 @@ namespace Broker
 
         Clients clients;
         ClientsData  cd;
-        
+        List<List<UserReport>> allReports;
         //Konstruktor głównego okna aplikacji
         public Broker()
         {
             InitializeComponent();
             clients = new Clients();
             cd = new ClientsData();
-
+            allReports = new List<List<UserReport>>();
             //Wczytanie z pliku XML danych dot. klientów zarejestrowanych w systemie
             clients.readFromXMLUsers(clients.dt, clients.usersData);
 
@@ -95,6 +95,22 @@ namespace Broker
                     //Wysłanie wyniku rejestracji
                     sendRegistrationVerify();
                     break;
+                    //Obsługa odebrania raportu od sprzedawcy
+                case "#Report":
+                    //Dekompresja odbieranych danych
+                    GZipStream GZipStream = new GZipStream(stream, CompressionMode.Decompress);
+                    byte[] bufor = new byte[1024];
+                    GZipStream.Read(bufor, 0, bufor.Length);
+
+                    //Przejście z bitów na stringi
+                    StringReader StringReader = new StringReader(UnicodeEncoding.Unicode.GetString(bufor, 0, bufor.Length));
+
+                    XmlSerializer xml = new XmlSerializer(typeof(List<UserReport>));
+                    List<UserReport> ur = (List<UserReport>)xml.Deserialize(StringReader);
+
+                    
+                    allReports.Add(ur);
+                    break;
 
                     
                 default:
@@ -103,6 +119,12 @@ namespace Broker
 
             nclient.Close();
             
+        }
+
+        public struct UserReport
+        {
+            public Clients.UserCertificate uc;
+            public string[] lastPayment;
         }
 
         //Metoda pozwalająca wysłać do wynik rejestracji - wysyłany jest tylko nagłówek RegistrationVerify
