@@ -17,6 +17,6 @@ namespace Vendor
         public static string COMMITMENT = "#Commitment"; // Wysyłane przez klienta do sprzedawcy podczas 1 platnosci (wysyla commitment)
         public static string PAYMENT = "#Payment"; // Wysyłane przez klienta do sprzedawcy jako nagłówek płatności
         public static string PAYMENTVERIFY = "#PaymentVerify"; //Wysyłane przez sprzedawce do klienta - wynik weryfikacji płatności
-        
+        public static string REPORT = "#Report"; //wysyłane przez sprzedawce do banku - raport o otrzymanych platnosciach
     }
 }

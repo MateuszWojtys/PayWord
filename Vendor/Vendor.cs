@@ -45,7 +45,7 @@ namespace Vendor
                 tmp.lastPayment[0] = usersData[i].lastPayment[0];
                 tmp.lastPayment[1] = usersData[i].lastPayment[1];
                 tmp.uc = usersData[i].certificate;
-                userNames.Add(tmp.uc.userName);
+                
                 mainReport.Add(tmp);
             }
         }
@@ -125,19 +125,55 @@ namespace Vendor
                     
                     
 
-                    /*List<string> firstPayment = new List<string>();
-                    //moneta
-                    firstPayment.Add(br.ReadString());
-                    //nuemr monety (platnosci)
-                    firstPayment.Add(br.ReadString());*/
+                    
 
                     XmlSerializer Serializer1 = new XmlSerializer(typeof(Users.UserCertificate));
                     Users.UserCertificate uc = (Users.UserCertificate)Serializer1.Deserialize(sr);
 
-                    createUserData(uc, com);
-                    //verifyPayment(userLogin, firstPayment);
-                    //sendResponse(verifyPayment(userLogin, firstPayment), firstPayment[0]);
-                    users.addNewRecord(findUserData(userLogin));
+                    if (userNames.Count == 0)
+                    {
+                        createUserData(uc, com);
+                    }
+                    else
+                    {
+                        for(int i = 0; i < userNames.Count; i++)
+                        {
+                            if(userNames[i] == uc.userName)
+                            {
+                                updateUserData(uc, com, findUserData(userNames[i]));
+                            }
+                            else
+                            {
+                                createUserData(uc, com);
+                            }
+                        }
+                    }
+
+                    string s = uc.userName;
+                    DataRow foundRow = users.dt.Rows.Find(s);
+
+                    if (foundRow != null) 
+                    {
+                            string[] tmp = new string[2];
+                            /*for (int p = 0; p < issuedCoins.Count; p++)
+                            {
+                                string[] tmp2 = new string[2];
+                                tmp2 = issuedCoins[p];
+                                if (tmp2[0] == userLogin)
+                                {
+                                    tmp = issuedCoins[p];
+                                }
+                            }*/
+                            tmp[0] = s;
+                            tmp[1] = "0";
+                            users.updateDataTable(findUserData(userLogin), tmp);
+                    }
+                    else
+                    {
+                            users.addNewRecord(findUserData(userLogin));
+                            
+                    }
+ 
                     refreshDataGridView(users.dt);
                     break;
 
@@ -148,17 +184,17 @@ namespace Vendor
                     payment.Add(br.ReadString());
                     payment.Add(br.ReadString());
                     sendResponse(verifyPayment(userLogin, payment), payment[0]);
-                    string[] tmp = new string[2];
+                    string[]  temp = new string[2];
                     for (int i = 0; i < issuedCoins.Count; i++ )
                     {
                         string[] tmp2 = new string[2];
                         tmp2 = issuedCoins[i];
                         if(tmp2[0] == userLogin )
                         {
-                            tmp = issuedCoins[i];
+                            temp = issuedCoins[i];
                         }
                     }
-                    users.updateDataTable(findUserData(userLogin), tmp);
+                    users.updateDataTable(findUserData(userLogin), temp);
                     refreshDataGridView(users.dt);
                     break;
                 
@@ -194,11 +230,31 @@ namespace Vendor
             tmp.userName = uc.userName;
             tmp.certificate = uc;
             tmp.commitment = com;
+            //tmp.lastPayment.Clear();
             // moneta
             tmp.lastPayment.Add(com.basicCoin);
             //nuemr platnosci
             tmp.lastPayment.Add("0");
             usersData.Add(tmp);
+            userNames.Add(tmp.userName);
+        }
+
+        private void updateUserData(Users.UserCertificate uc, Users.UserCommitment com, Users.UsersData  ud)
+        {
+            for (int i = 0; i < usersData.Count; i++)
+            {
+                if(usersData[i].userName == ud.userName)
+                {
+                    usersData.RemoveAt(i);
+                }
+            }
+            ud.lastPayment.Clear();
+            ud.userName = uc.userName;
+            ud.certificate = uc;
+            ud.commitment = com;
+            ud.lastPayment.Add(com.basicCoin);
+            ud.lastPayment.Add("0");
+            usersData.Add(ud);
         }
 
         private bool verifyPayment(string userLogin, List<string> payment)
@@ -318,7 +374,37 @@ namespace Vendor
             Report r = new Report(mainReport, userNames);
             r.Show();
            
-            Console.WriteLine("sd");
+        }
+
+        private void buttonSendReport_Click(object sender, EventArgs e)
+        {
+            generateReport();
+            sendReport(mainReport);
+        }
+
+        private void sendReport(List<Report.UserReport> ur)
+        {
+            TcpClient client = new TcpClient();
+            client.Connect("127.0.0.1", 5000);
+            NetworkStream stream = client.GetStream();
+            BinaryWriter bw = new BinaryWriter(stream);
+            bw.Write(Protocol.REPORT);
+
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Report.UserReport>));
+            StringWriter sw = new StringWriter();
+            xmlSerializer.Serialize(sw, ur);
+            byte[] bufor = UnicodeEncoding.Unicode.GetBytes(sw.ToString());
+            MemoryStream ms = new MemoryStream();
+            GZipStream gzip = new GZipStream(ms, CompressionMode.Compress, true);
+            gzip.Write(bufor, 0, bufor.Length);
+            gzip.Flush();
+            gzip.Close();
+            stream.Write(ms.ToArray(), 0, (int)ms.Length);
+            ms.Close();
+
+            stream.Close();
+            client.Close();
+
         }
     }
 }

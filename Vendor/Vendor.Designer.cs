@@ -61,6 +61,7 @@
             this.buttonSendReport.TabIndex = 2;
             this.buttonSendReport.Text = "Wyślij raport";
             this.buttonSendReport.UseVisualStyleBackColor = true;
+            this.buttonSendReport.Click += new System.EventHandler(this.buttonSendReport_Click);
             // 
             // Vendor
             // 
