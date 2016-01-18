@@ -26,6 +26,15 @@ namespace Vendor
         List<string> userNames;
 
         
+        private RSAParameters getBrokerPublicKey()
+        {
+            RSAParameters brokerPublicKey;
+            string publicKey = System.IO.File.ReadAllText(@"D:\Studia\PKRY\PayWord\BrokerPublicKey.xml");
+            XmlSerializer serializer = new XmlSerializer(typeof(RSAParameters));
+            StringReader sr = new StringReader(publicKey);
+            brokerPublicKey = (RSAParameters) serializer.Deserialize(sr);
+            return brokerPublicKey;
+        }
 
         private void updateIssuedCoins(string name, string value)
         {
@@ -108,12 +117,17 @@ namespace Vendor
                      userLogin = br.ReadString();
 
                     string xml = br.ReadString();
-                    StringReader sr = new StringReader(xml);
 
-                    
+
+                    StringReader sr = new StringReader(xml);
+                    int signCertificateLength  = br.ReadInt32();
+                    byte[] signCertificate;
+                    signCertificate = br.ReadBytes(signCertificateLength);
+
+
                     //Dekompresja odbieranych danych
                     GZipStream GZipStream = new GZipStream(stream, CompressionMode.Decompress);
-                    byte[] bufor = new byte[1024];
+                    byte[] bufor = new byte[3000];
                     GZipStream.Read(bufor, 0, bufor.Length);
 
                     //Przejście z bitów na stringi
@@ -130,30 +144,38 @@ namespace Vendor
                     XmlSerializer Serializer1 = new XmlSerializer(typeof(Users.UserCertificate));
                     Users.UserCertificate uc = (Users.UserCertificate)Serializer1.Deserialize(sr);
 
-                    if (userNames.Count == 0)
+                    int comLength = br.ReadInt32();
+                    byte[] comSign = br.ReadBytes(comLength);
+                    //sprawdzenie podpisu commitment - podpisany przez usera
+                    bool verCommit = verifyCommitmentSign(com, comSign, uc);
+                    //Sprawdzenie podpisu certyfikatu - podpisany przez bank
+                    bool verCert = verifyCertificateSign(uc, signCertificate);
+                    if (verCert == true && verCommit == true)
                     {
-                        createUserData(uc, com);
-                    }
-                    else
-                    {
-                        for(int i = 0; i < userNames.Count; i++)
+                        if (userNames.Count == 0)
                         {
-                            if(userNames[i] == uc.userName)
+                            createUserData(uc, com);
+                        }
+                        else
+                        {
+                            for (int i = 0; i < userNames.Count; i++)
                             {
-                                updateUserData(uc, com, findUserData(userNames[i]));
-                            }
-                            else
-                            {
-                                createUserData(uc, com);
+                                if (userNames[i] == uc.userName)
+                                {
+                                    updateUserData(uc, com, findUserData(userNames[i]));
+                                }
+                                else
+                                {
+                                    createUserData(uc, com);
+                                }
                             }
                         }
-                    }
 
-                    string s = uc.userName;
-                    DataRow foundRow = users.dt.Rows.Find(s);
+                        string s = uc.userName;
+                        DataRow foundRow = users.dt.Rows.Find(s);
 
-                    if (foundRow != null) 
-                    {
+                        if (foundRow != null)
+                        {
                             string[] tmp = new string[2];
                             /*for (int p = 0; p < issuedCoins.Count; p++)
                             {
@@ -167,14 +189,19 @@ namespace Vendor
                             tmp[0] = s;
                             tmp[1] = "0";
                             users.updateDataTable(findUserData(userLogin), tmp);
+                        }
+                        else
+                        {
+                            users.addNewRecord(findUserData(userLogin));
+
+                        }
+
+                        refreshDataGridView(users.dt);
                     }
                     else
                     {
-                            users.addNewRecord(findUserData(userLogin));
-                            
+                        // Trzeba cos zrobic jak hash sie nie zgadza
                     }
- 
-                    refreshDataGridView(users.dt);
                     break;
 
                     
@@ -209,6 +236,46 @@ namespace Vendor
 
         }
 
+        private bool verifyCommitmentSign(Users.UserCommitment com, byte[] sign, Users.UserCertificate uc)
+        {
+            
+            XmlSerializer xml = new XmlSerializer(typeof(Users.UserCommitment));
+            StringWriter comXML = new StringWriter();
+            xml.Serialize(comXML, com);
+            UTF8Encoding enc = new UTF8Encoding();
+            byte[] hashedData = null;
+            byte[] wiadomosctmp = enc.GetBytes(comXML.ToString());
+
+            RSACryptoServiceProvider rsaCSP = new RSACryptoServiceProvider();
+            SHA1Managed hash = new SHA1Managed();
+            RSAParameters tmpRSA = uc.publicKey;
+            rsaCSP.ImportParameters(tmpRSA);
+            hashedData = hash.ComputeHash(wiadomosctmp);
+            Console.WriteLine(rsaCSP.VerifyHash(hashedData, CryptoConfig.MapNameToOID("SHA1"), sign).ToString());
+            return rsaCSP.VerifyHash(hashedData, CryptoConfig.MapNameToOID("SHA1"), sign);
+            
+        }
+        private bool verifyCertificateSign(Users.UserCertificate uc, byte[] sign)
+        {
+            
+            XmlSerializer xml = new XmlSerializer(typeof(Users.UserCertificate));
+            StringWriter certXML = new StringWriter();
+            xml.Serialize(certXML, uc);
+
+            UTF8Encoding enc = new UTF8Encoding();
+            byte[] hashedData = null;
+            byte[] wiadomosctmp = enc.GetBytes(certXML.ToString());
+
+            RSACryptoServiceProvider rsaCSP = new RSACryptoServiceProvider();
+            SHA1Managed hash = new SHA1Managed();
+            RSAParameters tmp = getBrokerPublicKey();
+            rsaCSP.ImportParameters(tmp);
+            hashedData = hash.ComputeHash(wiadomosctmp);
+            Console.WriteLine(rsaCSP.VerifyHash(hashedData, CryptoConfig.MapNameToOID("SHA1"), sign).ToString());
+            return rsaCSP.VerifyHash(hashedData, CryptoConfig.MapNameToOID("SHA1"),sign);
+            
+            
+        }
         private void sendResponse(bool verify, string coin)
         {
             TcpClient client = new TcpClient();
