@@ -11,7 +11,10 @@ using System.Xml.Serialization;
 
 namespace Broker
 {
-    // Klasa reprezentująca klientów
+    
+    /// <summary>
+    /// Klasa reprezentująca klientów Banku
+    /// </summary>
     public class Clients
     {
        //Lista przechowująca dane dot. danych rejestracyjnych userów
@@ -22,9 +25,24 @@ namespace Broker
 
        //DataTable przechowująca dane o użytkownikach
        public DataTable dt;
+        //Lista przechowująca hasła użytkowników do systemu
+       ArrayList passwords = new ArrayList();
+        /// <summary>
+        /// Struktura odpowiadająca za raport przesyłany przez Sprzedawce do Banku -
+        /// - zawiera info dot. platnosci klienta
+        /// </summary>
+       public struct UserReport
+       {
+           public UserCertificate uc;
+           public string[] lastPayment;
+       }
 
-        ArrayList passwords = new ArrayList();
-        //Konstruktor  - inicjowane są obie powyższe listy
+
+        
+        
+        /// <summary>
+       /// Konstruktor  - inicjowane są obie powyższe listy
+        /// </summary>
        public  Clients()
         {
            //Pobranie danych o zarejestrowanych już klientach w systemie
@@ -43,7 +61,7 @@ namespace Broker
         {
             public string brokerName; // nazwa banku
             public string userName; // nazwa usera
-            public RSAParameters publicKey;//klucz publiczny usera??????????????????????????????????????????????????????????????????????
+            public RSAParameters publicKey;//klucz publiczny usera
             public DateTime expirationDate;// data wygaśnięcia certyfikatu
         }
 
@@ -66,7 +84,13 @@ namespace Broker
             public UserRegistrationData urd; //dane podane podczas rejestracji
         }
 
-        //Metoda pozwalająca zweryfikować login i hash z hasła podczas logowania
+        
+        /// <summary>
+        /// Metoda pozwalająca zweryfikować login i hash z hasła podczas logowania
+        /// </summary>
+        /// <param name="login"></param> // login podany podczas logowania
+        /// <param name="passwordHash"></param>// hash z hasła - otrzymany od Usera
+        /// <returns></returns>
         public bool checkUserData(string login, string passwordHash)
         {
             bool verify = false;
@@ -90,14 +114,22 @@ namespace Broker
             return verify;
         }
 
-        //Przypisanie wartosci z pliku tekstowego do listy
+        
+        /// <summary>
+        /// Przypisanie wartosci z pliku tekstowego zaweirajacego hashe z haseł do listy
+        /// </summary>
         public void getDataFromFile()
         {
             passwords = readData("Passwords.txt");
         }
 
 
-        //pobranie wartosci z pliku tekstowego i dodanie do listy
+        
+        /// <summary>
+        /// pobranie wartosci z pliku tekstowego i dodanie do listy
+        /// </summary>
+        /// <param name="fileName"></param> nazwa pliku do odczytu
+        /// <returns></returns>
         private static ArrayList readData(string fileName)
         {
             ArrayList data = new ArrayList();
@@ -109,7 +141,12 @@ namespace Broker
             return data;
         }
 
-        //metoda pozwalająca na oddzielenie slow, ktore odzdzielone sa spacja
+        
+        /// <summary>
+        /// metoda pozwalająca na oddzielenie slow, ktore odzdzielone sa spacja
+        /// </summary>
+        /// <param name="line"></param>// dany ciag znakow do podzielenia
+        /// <returns></returns>
         private static List<string> parse(string line)
         {
             List<string> datas = new List<string>();
@@ -121,20 +158,31 @@ namespace Broker
             }
             return datas;
         }
-        //Zapisywanie do XMla danych  użytkowników 
+        
+        /// <summary>
+        /// Zapisywanie do XMla danych  użytkowników 
+        /// </summary>
+        /// <param name="dt"></param> dane użytkowników
         public void writeToXMLUsers(DataTable dt)
         {
             dt.WriteXml("Users.xml");
         }
 
 
-        //Odczytywanie danych  uzytkownikow z xml 
-        public void readFromXMLUsers( DataTable dt, List<UserData> users)
+        
+        /// <summary>
+        /// Odczytywanie danych  uzytkownikow z xml 
+        /// </summary>
+        /// <param name="dt"></param> dane użytkowników
+        public void readFromXMLUsers( DataTable dt)
         {
             dt.ReadXml("Users.xml");
         }
 
-        //Metoda tworząca DataTable (kolumny) , która będzie przechowywać dane o użytkownikach
+        
+        /// <summary>
+        /// Metoda tworząca DataTable (kolumny) , która będzie przechowywać dane o użytkownikach
+        /// </summary>
         private void createDataTable()
         {
             dt = new DataTable("Klienci banku");
@@ -152,7 +200,12 @@ namespace Broker
             dt.Columns.Add(certificateDate);
         }
 
-        //Dodanie do pliku loginu i hashu z hasła nowego klienta (rejestracja)
+        
+        /// <summary>
+        /// Dodanie do pliku loginu i hashu z hasła nowego klienta (rejestracja)
+        /// </summary>
+        /// <param name="login"></param>
+        /// <param name="password"></param>
         public void addToPasswordList(string login, string password)
         {
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"D:\Studia\PKRY\PayWord\Broker\Broker\bin\Debug\passwords.txt", true))
@@ -162,7 +215,15 @@ namespace Broker
            
         }
 
-        //Metoda pozwalająca na dodanie nowego rekordu
+        
+        /// <summary>
+        /// Metoda pozwalająca na dodanie nowego rekordu
+        /// </summary>
+        /// <param name="name"></param> nazwa użytkownika
+        /// <param name="login"></param>login użytkownika
+        /// <param name="hash"></param>hash z hasła użytkownika
+        /// <param name="creditCard"></param>numer karty kredytowej użytkownika
+        /// <param name="date"></param>data ważności certyfikatu
         public void addNewData(string name, string login, string hash, string creditCard,  DateTime date)
         {
             DataRow row = dt.NewRow();
@@ -170,12 +231,16 @@ namespace Broker
             row["Login"] = login;
             row["Hash z hasła"] = hash;
             row["Numer karty kredytowej"] = creditCard;
-            
             row["Data wygaśnięcia certyfikatu"] = date;
             dt.Rows.Add(row);
 
         }
-        //metoda tworzaca i zwracajaca certyfikat
+      
+        /// <summary>
+        /// metoda tworzaca i zwracajaca certyfikat
+        /// </summary>
+        /// <param name="urd"></param>// dane podane podczas rejestracji
+        /// <returns></returns>
         public UserCertificate createCertificate(UserRegistrationData urd)
         {
             UserCertificate uc = new UserCertificate();
@@ -191,7 +256,13 @@ namespace Broker
             return uc;
         }
 
-        //Tworzenie danych użytkownika
+        
+        /// <summary>
+        /// Tworzenie danych użytkownika
+        /// </summary>
+        /// <param name="urd"></param>dane podane podczas rejestracji
+        /// <param name="uc"></param> certyfikat uzytkownika
+        /// <returns></returns>
         public UserData createUserData(UserRegistrationData urd, UserCertificate uc)
         {
             UserData ud = new UserData();

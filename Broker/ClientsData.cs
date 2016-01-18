@@ -10,11 +10,17 @@ using System.Windows.Forms;
 
 namespace Broker
 {
-    //Okno pozwalające zobaczyć dane uzytkowników zarejestrowanych w systemie
+   
+    /// <summary>
+    /// Okno pozwalające zobaczyć dane uzytkowników zarejestrowanych w systemie
+    /// </summary>
     public partial class ClientsData : Form
     {
 
-        //Konstruktor danych klienta
+      
+        /// <summary>
+        /// Konstruktor danych klienta
+        /// </summary>
         public ClientsData()
         {
             InitializeComponent();
@@ -23,14 +29,22 @@ namespace Broker
             
         }
 
-        //Ustawienie źródła dla DTV w oknie
+        
+        /// <summary>
+        /// //Ustawienie źródła dla DTV w oknie
+        /// </summary>
+        /// <param name="dt"></param> // źródło do wyświetlenia
         public void setSourceForDTV(DataTable dt)
         {
             dataGridViewClientsData.DataSource = dt;
         }
         
 
-        //metoda pozwalająca na odświeżanie danych w DTV
+        
+        /// <summary>
+        /// metoda pozwalająca na odświeżanie danych w DTV
+        /// </summary>
+        /// <param name="dt"></param> // miejsce w ktorym zmienily sie dane
         public void refreshDataGridView(DataTable dt)
         {
             Func<int> del = delegate()
