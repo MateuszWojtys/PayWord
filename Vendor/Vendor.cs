@@ -35,10 +35,10 @@ namespace Vendor
         private RSAParameters getBrokerPublicKey()
         {
             RSAParameters brokerPublicKey;
-            string publicKey = System.IO.File.ReadAllText(@"D:\Studia\PKRY\PayWord\BrokerPublicKey.xml");
-            XmlSerializer serializer = new XmlSerializer(typeof(RSAParameters));
-            StringReader sr = new StringReader(publicKey);
-            brokerPublicKey = (RSAParameters) serializer.Deserialize(sr);
+            string[] tmp = System.IO.File.ReadAllLines(@"D:\Studia\PKRY\PayWord\Klucze\BrokerPublicKey.txt");
+            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
+            rsa.FromXmlString(tmp[0]);
+            brokerPublicKey = rsa.ExportParameters(false);
             return brokerPublicKey;
         }
 
@@ -223,7 +223,7 @@ namespace Vendor
                     break;
             }
 
-            Console.WriteLine("OSTATNIA PLATNOSC " + usersData[0].lastPayment[0]);
+            
             nclient.Close();
 
         }
