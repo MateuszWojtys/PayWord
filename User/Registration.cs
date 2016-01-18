@@ -36,19 +36,16 @@ namespace User
             public RSAParameters publicKey; // klucz publiczny
         }
 
-        /// <summary>
-        /// klucz publiczny
-        /// </summary>
-        RSAParameters pKey;
+        
 
         
 
         //Konstruktor okienka rejestracji
-        public Registration(RSAParameters tmpPublicKey)
+        public Registration()
         {
             InitializeComponent();
             labelBlad.Visible = false;
-            pKey = tmpPublicKey;
+            
         }
 
 
@@ -103,13 +100,26 @@ namespace User
         /// <returns></returns>
         private UserRegistrationData getRegistrationData()
         {
+           
+        
             UserRegistrationData urd = new UserRegistrationData();
             urd.name = textBoxImie.Text;
             urd.lastName = textBoxNazwisko.Text;
             urd.creditCard = textBoxKartaKredytowa.Text;
             urd.login = textBoxLogin.Text;
             urd.password = textBoxHaslo.Text;
-            urd.publicKey = pKey;
+
+            RSACryptoServiceProvider rsaCSP = new RSACryptoServiceProvider();
+            string str = rsaCSP.ToXmlString(false);
+            string str1 = rsaCSP.ToXmlString(true);
+            string[] tmp1 = new string[2];
+            tmp1[0] = str;
+            string[] tmp2 = new string[1];
+            tmp2[0] = str1;
+            System.IO.File.WriteAllLines(@"D:\Studia\PKRY\PayWord\Klucze\" + urd.login + "PublicKey.txt", tmp1);
+            System.IO.File.WriteAllLines(@"D:\Studia\PKRY\PayWord\Klucze\" + urd.login + "BrokerKeys.txt", tmp2);
+
+            urd.publicKey = rsaCSP.ExportParameters(false);
             return urd;
         }
 

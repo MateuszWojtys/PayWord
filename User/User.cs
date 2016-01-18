@@ -27,8 +27,8 @@ namespace User
         //Lista monet
         PayWord.StructPayWord spw = new PayWord.StructPayWord();
         RSACryptoServiceProvider rsaCSP;
-        //Lista kluczy - prywatny i publiczny użytkownika
-        List<RSAParameters> keys = new List<RSAParameters>();
+        public RSAParameters publicKey;
+        public RSAParameters privateKey;
 
         //string przechowujący login podany podczas logowania - wykorzystywane do pobierania informacji o certyfikacie
         string mainLogin = null;
@@ -55,8 +55,7 @@ namespace User
             //Wygaszenie niepotrzebnych elementów, które nie powinny być dostępne przez poprawnym zalogowaniem
             dontShowElements();
             rsaCSP = new RSACryptoServiceProvider();
-            //Generacja kluczy - prywatnego i publicznego
-            keys = generateKeys();
+            
             //Nasłuchiwanie na klientów TCP
             Thread tcpServerStartThread = new Thread(new ThreadStart(TcpServerStart));
             tcpServerStartThread.Start();
@@ -108,6 +107,11 @@ namespace User
                 case "#LogInVerify":
                     string login = br.ReadString();
                     bool verify = br.ReadBoolean();
+                    if(verify == true)
+                    {
+                        readKeys();
+                    }
+                    
                     //Pokazanie przycisków itp. dla klienta zalogowanego w przypadku poprawnego wyniku weryfikacji
                     setFormForLoggedUser(verify, login);
                     
@@ -143,19 +147,16 @@ namespace User
         }
 
         /// <summary>
-        /// Generowanie kluczy - prywatnego i publicznego
+        /// Wczytywanie własnych kluczy
         /// </summary>
-        /// <returns></returns>
-        private List<RSAParameters> generateKeys()
+        private void readKeys()
         {
-            List<RSAParameters> tmpList = new List<RSAParameters>();
-            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-            string str = rsa.ToXmlString(true);
-            string[] tmp = new string[1];
-            tmp[0] = str;
-            tmpList.Add(rsa.ExportParameters(true)); // prywatny
-            tmpList.Add(rsa.ExportParameters(false)); // publiczny
-            return tmpList;
+            
+            string[] str = System.IO.File.ReadAllLines(@"D:\Studia\PKRY\PayWord\Klucze\" + mainLogin + "BrokerKeys.txt");
+            rsaCSP = new RSACryptoServiceProvider();
+            rsaCSP.FromXmlString(str[0]);
+            publicKey = rsaCSP.ExportParameters(false);
+            privateKey = rsaCSP.ExportParameters(true);
 
         }
         
@@ -339,7 +340,7 @@ namespace User
             byte[] hashedData = null;
             hashedData = hash.ComputeHash(data);
             //RSACryptoServiceProvider rsaCSP = new RSACryptoServiceProvider();
-            rsaCSP.ImportParameters(keys[0]);
+            rsaCSP.ImportParameters(privateKey);
             return rsaCSP.SignHash(hashedData, CryptoConfig.MapNameToOID("SHA1"));
         }
 
@@ -443,7 +444,7 @@ namespace User
         private void linkLabelRejestracja_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             //Pokazuje okno do rejestracji
-            Registration registration = new Registration(keys[1]);
+            Registration registration = new Registration();
             registration.ShowDialog();
         }
 
