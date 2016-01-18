@@ -8,11 +8,14 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 using System.Xml.Serialization;
+
 
 namespace Broker
 {
@@ -23,10 +26,15 @@ namespace Broker
         Clients clients;
         ClientsData  cd;
         List<List<UserReport>> allReports;
+        RSACryptoServiceProvider rsaCSP; 
+        RSAParameters publicKey;
+        RSAParameters privateKey;
         //Konstruktor głównego okna aplikacji
         public Broker()
         {
             InitializeComponent();
+            rsaCSP = new RSACryptoServiceProvider();
+            generateOwnKeys();
             clients = new Clients();
             cd = new ClientsData();
             allReports = new List<List<UserReport>>();
@@ -39,8 +47,24 @@ namespace Broker
             tcpServerStartThread.Start();
         }
 
-        
+        private void generateOwnKeys()
+        {
+            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
+            string str = rsa.ToXmlString(true);
+            string[] tmp = new string[1];
+            tmp[0] = str;
+            privateKey =  rsa.ExportParameters(true); // prywatny
+            publicKey = rsa.ExportParameters(false); // publiczny
+            savePublicKey(publicKey);
+        }
 
+        private void savePublicKey(RSAParameters publicKey)
+        {
+            XmlSerializer Serializer = new XmlSerializer(typeof(RSAParameters));
+            StringWriter StringWriter = new StringWriter();
+            Serializer.Serialize(StringWriter, publicKey);
+            System.IO.File.WriteAllText(@"D:\Studia\PKRY\PayWord\BrokerPublicKey.xml", StringWriter.ToString());
+        }
         //Metoda odpowiadająca za nasłuchiwanie na klientów TCP
         private void TcpServerStart()
         {
@@ -92,6 +116,8 @@ namespace Broker
                     getRegistrationData(stream);
                     //ponowne wczytanie listy haseł
                     clients.getDataFromFile();
+
+                    
                     //Wysłanie wyniku rejestracji
                     sendRegistrationVerify();
                     break;
@@ -132,12 +158,15 @@ namespace Broker
         {
             try
             {
-
+                
                 TcpClient tmpClient = new TcpClient();
+               
                 tmpClient.Connect("127.0.0.1", 5001);
                 NetworkStream tmpStream = tmpClient.GetStream();
                 BinaryWriter tmpBr = new BinaryWriter(tmpStream);
                 tmpBr.Write(Protocol.REGISTRATIONVERIFY);
+                
+                
                 tmpStream.Close();
                 tmpClient.Close();
             }
@@ -152,7 +181,7 @@ namespace Broker
         {
             //Dekompresja odbieranych danych
             GZipStream GZipStream = new GZipStream(stream, CompressionMode.Decompress);
-            byte[] bufor = new byte[1024];
+            byte[] bufor = new byte[3000];
             GZipStream.Read(bufor, 0, bufor.Length);
 
             //Przejście z bitów na stringi
@@ -216,16 +245,50 @@ namespace Broker
             XmlSerializer xml = new XmlSerializer(typeof(Clients.UserCertificate));
             StringWriter sw = new StringWriter();
             xml.Serialize(sw, uc);
+            string certicicateInXML = sw.ToString();
             //Zapis do pliku - nazwa pliku to login klienta
-            string fileName = urd.login + ".xml";
-            System.IO.File.WriteAllText(@"D:\Studia\PKRY\PayWord\" + fileName, sw.ToString());
+            string fileName = urd.login ;
+            System.IO.File.WriteAllText(@"D:\Studia\PKRY\PayWord\" + fileName + ".xml", certicicateInXML);
 
+            byte[] sign = createSign(certicicateInXML);
+
+            FileStream fs = new System.IO.FileStream(@"D:\Studia\PKRY\PayWord\" + "Sign" + fileName + ".txt", FileMode.Create);
+            fs.Write(sign, 0, sign.Length);
+            fs.Close();
             
 
             
         }
 
-        
+        private byte[] createSign(string s)
+        {
+            UTF8Encoding enc = new UTF8Encoding();
+            byte[] data = enc.GetBytes(s);
+
+            SHA1Managed hash = new SHA1Managed();
+            byte[] hashedData = null;
+            hashedData = hash.ComputeHash(data);
+            // RSACryptoServiceProvider rsaCSP = new RSACryptoServiceProvider();
+            rsaCSP.ImportParameters(privateKey);
+            return rsaCSP.SignHash(hashedData, CryptoConfig.MapNameToOID("SHA1"));
+
+            /*byte[] sign;
+            //Generate a public/private key pair.
+            RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
+
+            //Create an RSAPKCS1SignatureFormatter object and pass it the 
+            //RSACryptoServiceProvider to transfer the private key.
+            RSAPKCS1SignatureFormatter RSAFormatter = new RSAPKCS1SignatureFormatter(RSA);
+            SHA1 sha1 = SHA1.Create();
+
+            //Set the hash algorithm to SHA1.
+            RSAFormatter.SetHashAlgorithm("SHA1");
+
+            //Create a signature for HashValue and assign it to 
+            //SignedHashValue.
+            sign = RSAFormatter.CreateSignature(sha1.ComputeHash(data));*/
+            
+        }
 
         //Przeciązona metoda zamykania okna
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -235,6 +298,7 @@ namespace Broker
 
         }
 
+        
         //Metoda pokazujaca okno z danymi uzytkownikow
         private void linkLabelDataUsers_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {  
