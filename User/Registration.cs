@@ -15,9 +15,12 @@ using System.Xml.Serialization;
 
 namespace User
 {
+
     //Okienko pozwalające na wpisanie danych potrzebnych do rejestracji
     public partial class Registration : Form
     {
+
+        RSAParameters pKey;
 
         // struktura odzwierciedlająca dane użytkownika do rejestracji
         public struct UserRegistrationData
@@ -27,14 +30,19 @@ namespace User
             public string creditCard; // nr karty kredytowej
             public string login; // login
             public string password; // hasło
+            public RSAParameters publicKey; // klucz publiczny
         }
 
         //Konstruktor okienka rejestracji
-        public Registration()
+        public Registration(RSAParameters tmpPublicKey)
         {
             InitializeComponent();
             labelBlad.Visible = false;
+            pKey = tmpPublicKey;
         }
+
+
+        
 
         //Pozwala na sprawdzenie poprawności danych wpisanych przez usera (głównie czy pola nie są puste)
         // Sprawdzenie czy powtorzone haslo jest takie samo jak haslo poprzednie
@@ -81,12 +89,12 @@ namespace User
         private UserRegistrationData getRegistrationData()
         {
             UserRegistrationData urd = new UserRegistrationData();
-   
             urd.name = textBoxImie.Text;
             urd.lastName = textBoxNazwisko.Text;
             urd.creditCard = textBoxKartaKredytowa.Text;
             urd.login = textBoxLogin.Text;
             urd.password = textBoxHaslo.Text;
+            urd.publicKey = pKey;
             return urd;
         }
 

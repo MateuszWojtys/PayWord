@@ -24,7 +24,9 @@ namespace User
         PayWord.StructPayWord spw = new PayWord.StructPayWord();
 
         PayWord payWord = new PayWord();
-        
+        RSACryptoServiceProvider rsaCSP;
+        List<RSAParameters> keys = new List<RSAParameters>();
+
         //string przechowująca login podany podczas logowania - wykorzystywane do pobierania informacji o certyfikacie
         string mainLogin = null;
 
@@ -32,17 +34,16 @@ namespace User
         public User()
         {
             InitializeComponent();
-
             //Wygaszenie niepotrzebnych elementów, które nie powinny być dostępne przez poprawnym zalogowaniem
             dontShowElements();
-
-         
-
+            rsaCSP = new RSACryptoServiceProvider();
+            keys = generateKeys();
             //Nasłuchiwanie na klientów TCP
             Thread tcpServerStartThread = new Thread(new ThreadStart(TcpServerStart));
             tcpServerStartThread.Start();
         }
 
+        
 
         //Metoda odpowiadająca za nasłuchiwanie na klientów TCP
         private void TcpServerStart()
@@ -83,9 +84,12 @@ namespace User
                     bool verify = br.ReadBoolean();
                     //Pokazanie przycisków itp. dla klienta zalogowanego w przypadku poprawnego wyniku weryfikacji
                     setFormForLoggedUser(verify, login);
+                    
                     break;
                 //Obsługa gdy odebrany zostanie nagłówek odpowiedzialny za wynik rejestracji
                 case "#RegistrationVerify":
+                    
+
                     //Pokazywane jest okno, które informuje i poprawnym wyniku weryfikacji
                     Verify rv = new Verify("Zarejestrowano pomyślnie");
                     rv.ShowDialog();
@@ -115,6 +119,18 @@ namespace User
             }
         }
 
+        private List<RSAParameters> generateKeys()
+        {
+            List<RSAParameters> tmpList = new List<RSAParameters>();
+            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
+            string str = rsa.ToXmlString(true);
+            string[] tmp = new string[1];
+            tmp[0] = str;
+            tmpList.Add(rsa.ExportParameters(true)); // prywatny
+            tmpList.Add(rsa.ExportParameters(false)); // publiczny
+            return tmpList;
+
+        }
         //Metoda pozwalająca na wygaszenie elementów - wygaszane są gdy klient nie jest zalogowany
         private void dontShowElements()
         {
@@ -151,6 +167,7 @@ namespace User
           public string basicCoin;
           public string date;
           public string legthOfPayword;
+          
       }
 
         private UserCommitment generateCommitmentToVendor()
@@ -238,10 +255,17 @@ namespace User
             Certificate c = new Certificate(mainLogin);
             bw.Write(c.getCertificateDatas(mainLogin)[1]);
             bw.Write(c.getCertificate(mainLogin));
+            Certificate.Sign sign = c.getCertificateSign(mainLogin);
 
+            //podpis certyfikatu
+            bw.Write(sign.length); //  dlugosc podpisu
+            bw.Write(sign.sign); // podpis
+
+            // commitment
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(UserCommitment));
             StringWriter sw = new StringWriter();
-            xmlSerializer.Serialize(sw, generateCommitmentToVendor());
+            UserCommitment tmpCom = generateCommitmentToVendor();
+            xmlSerializer.Serialize(sw, tmpCom);
             byte[] bufor = UnicodeEncoding.Unicode.GetBytes(sw.ToString());
             MemoryStream ms = new MemoryStream();
             GZipStream gzip = new GZipStream(ms, CompressionMode.Compress, true);
@@ -250,11 +274,28 @@ namespace User
             gzip.Close();
             stream.Write(ms.ToArray(), 0, (int)ms.Length);
             ms.Close();
+
+            byte[] commitmentSign =  createSign(sw.ToString());
+            bw.Write(commitmentSign.Length);
+            bw.Write(commitmentSign);
             client.Close();
 
             buttonZaplac.Visible = true;
         }
 
+        private byte[] createSign(string s)
+        {
+
+            UTF8Encoding enc = new UTF8Encoding();
+            byte[] data = enc.GetBytes(s);
+
+            SHA1Managed hash = new SHA1Managed();
+            byte[] hashedData = null;
+            hashedData = hash.ComputeHash(data);
+            //RSACryptoServiceProvider rsaCSP = new RSACryptoServiceProvider();
+            rsaCSP.ImportParameters(keys[0]);
+            return rsaCSP.SignHash(hashedData, CryptoConfig.MapNameToOID("SHA1"));
+        }
 
         //Metoda odpowiedzialna za logowanie
         private void buttonLogIn_Click(object sender, EventArgs e)
@@ -339,7 +380,7 @@ namespace User
         private void linkLabelRejestracja_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             //Pokazuje okno do rejestracji
-            Registration registration = new Registration();
+            Registration registration = new Registration(keys[1]);
             registration.ShowDialog();
         }
 
@@ -406,6 +447,7 @@ namespace User
         //Pokazanie okna z danymi cetryfikatu
         private void linkLabelCertificate_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
+            
             Certificate c = new Certificate(mainLogin);
             c.Show();
         }
