@@ -17,6 +17,9 @@ using System.Xml.Serialization;
 
 namespace Vendor
 {
+    /// <summary>
+    /// Klasa odzwierciedlajaca Sprzedawce
+    /// </summary>
     public partial class Vendor : Form
     {
         Users users;
@@ -25,7 +28,10 @@ namespace Vendor
         List<Report.UserReport> mainReport;
         List<string> userNames;
 
-        
+        /// <summary>
+        /// Pobieranie klucza publicznego banku
+        /// </summary>
+        /// <returns></returns>
         private RSAParameters getBrokerPublicKey()
         {
             RSAParameters brokerPublicKey;
@@ -36,6 +42,11 @@ namespace Vendor
             return brokerPublicKey;
         }
 
+        /// <summary>
+        /// Aktualicja wydanych monet
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
         private void updateIssuedCoins(string name, string value)
         {
             string[] tmp = new string[2];
@@ -44,21 +55,10 @@ namespace Vendor
             issuedCoins.Add(tmp);
         }
 
-        private void generateReport()
-        {
-            for(int i = 0; i < usersData.Count; i++)
-            {
-                
-                Report.UserReport tmp = new Report.UserReport();
-                tmp.lastPayment = new string[2];
-                tmp.lastPayment[0] = usersData[i].lastPayment[0];
-                tmp.lastPayment[1] = usersData[i].lastPayment[1];
-                tmp.uc = usersData[i].certificate;
-                
-                mainReport.Add(tmp);
-            }
-        }
-
+       
+        /// <summary>
+        /// Konstruktor Srzedawcy
+        /// </summary>
         public Vendor()
         {
             InitializeComponent();
@@ -177,15 +177,7 @@ namespace Vendor
                         if (foundRow != null)
                         {
                             string[] tmp = new string[2];
-                            /*for (int p = 0; p < issuedCoins.Count; p++)
-                            {
-                                string[] tmp2 = new string[2];
-                                tmp2 = issuedCoins[p];
-                                if (tmp2[0] == userLogin)
-                                {
-                                    tmp = issuedCoins[p];
-                                }
-                            }*/
+                            
                             tmp[0] = s;
                             tmp[1] = "0";
                             users.updateDataTable(findUserData(userLogin), tmp);
@@ -236,6 +228,7 @@ namespace Vendor
 
         }
 
+        //Weryfikacja podpisu commitmentu
         private bool verifyCommitmentSign(Users.UserCommitment com, byte[] sign, Users.UserCertificate uc)
         {
             
@@ -255,6 +248,12 @@ namespace Vendor
             return rsaCSP.VerifyHash(hashedData, CryptoConfig.MapNameToOID("SHA1"), sign);
             
         }
+        /// <summary>
+        /// Weryfikacja podpisu certyfikatu
+        /// </summary>
+        /// <param name="uc"></param>
+        /// <param name="sign"></param>
+        /// <returns></returns>
         private bool verifyCertificateSign(Users.UserCertificate uc, byte[] sign)
         {
             
@@ -273,9 +272,13 @@ namespace Vendor
             hashedData = hash.ComputeHash(wiadomosctmp);
             Console.WriteLine(rsaCSP.VerifyHash(hashedData, CryptoConfig.MapNameToOID("SHA1"), sign).ToString());
             return rsaCSP.VerifyHash(hashedData, CryptoConfig.MapNameToOID("SHA1"),sign);
-            
-            
+   
         }
+        /// <summary>
+        /// Odpowiedz do usera- weryfikacja płatności
+        /// </summary>
+        /// <param name="verify"></param>
+        /// <param name="coin"></param>
         private void sendResponse(bool verify, string coin)
         {
             TcpClient client = new TcpClient();
@@ -290,6 +293,11 @@ namespace Vendor
             
 
         }
+        /// <summary>
+        /// tworzenie nowych danych dal użytkownika
+        /// </summary>
+        /// <param name="uc"></param>
+        /// <param name="com"></param>
         private void createUserData(Users.UserCertificate uc, Users.UserCommitment com)
         {
             Users.UsersData tmp = new Users.UsersData();
@@ -306,6 +314,12 @@ namespace Vendor
             userNames.Add(tmp.userName);
         }
 
+        /// <summary>
+        /// Aktualizacja danych użytkownika
+        /// </summary>
+        /// <param name="uc"></param>
+        /// <param name="com"></param>
+        /// <param name="ud"></param>
         private void updateUserData(Users.UserCertificate uc, Users.UserCommitment com, Users.UsersData  ud)
         {
             for (int i = 0; i < usersData.Count; i++)
@@ -323,7 +337,12 @@ namespace Vendor
             ud.lastPayment.Add("0");
             usersData.Add(ud);
         }
-
+        /// <summary>
+        /// Weryfikacja płatności
+        /// </summary>
+        /// <param name="userLogin"></param> nazwa usera
+        /// <param name="payment"></param> płatność
+        /// <returns></returns>
         private bool verifyPayment(string userLogin, List<string> payment)
         {
             Users.UsersData userData = new Users.UsersData();
@@ -369,6 +388,11 @@ namespace Vendor
             return verify;
         }
 
+        /// <summary>
+        /// Pozwala na znalezienie danych dotyczacych danego klienta, po nazwie usera
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <returns></returns>
         private Users.UsersData findUserData(string userName)
         {
             Users.UsersData tmp = new Users.UsersData();
@@ -393,7 +417,13 @@ namespace Vendor
         }
 
         
-        //Tworzenie hasha ze stringa
+        
+        /// <summary>
+        /// Tworzenie hasha ze stringa
+        /// </summary>
+        /// <param name="md5Hash"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public string getMD5Hash(MD5 md5Hash, string input)
         {
 
@@ -411,11 +441,19 @@ namespace Vendor
             return sBuilder.ToString();
         }
 
+        /// <summary>
+        /// Ustawienie źródła dal GDV
+        /// </summary>
+        /// <param name="dt"></param>
         private void setSourceForDTV(DataTable dt)
         {
             dataGridViewUsersData.DataSource = dt;
         }
 
+        /// <summary>
+        /// Aktualizacja danych wyswietlanych w DGV
+        /// </summary>
+        /// <param name="dt"></param>
         public void refreshDataGridView(DataTable dt)
         {
             Func<int> del = delegate()
@@ -428,13 +466,37 @@ namespace Vendor
             Invoke(del);
         }
 
-        //Przeciązona metoda zamykania okna
+        /// <summary>
+        /// Przeciązona metoda zamykania okna
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             base.OnFormClosing(e);
             System.Environment.Exit(1);
         }
+        /// <summary>
+        /// Metofa pozwalajaca na stworzeni raportu
+        /// </summary>
+        private void generateReport()
+        {
+            for (int i = 0; i < usersData.Count; i++)
+            {
 
+                Report.UserReport tmp = new Report.UserReport();
+                tmp.lastPayment = new string[2];
+                tmp.lastPayment[0] = usersData[i].lastPayment[0];
+                tmp.lastPayment[1] = usersData[i].lastPayment[1];
+                tmp.uc = usersData[i].certificate;
+
+                mainReport.Add(tmp);
+            }
+        }
+        /// <summary>
+        /// Pokazanie raportu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonShowReport_Click(object sender, EventArgs e)
         {
             generateReport();
@@ -442,13 +504,21 @@ namespace Vendor
             r.Show();
            
         }
-
+        /// <summary>
+        /// Tworzenie i wysyłanie raportu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonSendReport_Click(object sender, EventArgs e)
         {
             generateReport();
             sendReport(mainReport);
         }
 
+        /// <summary>
+        /// Wysyłanie raportu do Banku
+        /// </summary>
+        /// <param name="ur"></param>
         private void sendReport(List<Report.UserReport> ur)
         {
             TcpClient client = new TcpClient();

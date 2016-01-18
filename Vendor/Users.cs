@@ -8,15 +8,55 @@ using System.Threading.Tasks;
 
 namespace Vendor
 {
+    /// <summary>
+    /// Klasa odpowiedzialna za użytkownikó u Sprzedawcy
+    /// </summary>
     public class Users
     {
+        //Struktura odzwierciedlajaca dane użytkownika
+        public struct UsersData
+        {
+            public string userName; // nazwa usera
+            public List<string> lastPayment;// ostatnia platnosc
+            public UserCertificate certificate;// cetryfikat usera
+            public UserCommitment commitment;// commitment usera
+        }
 
-         public DataTable dt;
+        /// <summary>
+        /// Struktura odzwierciedlajaca commitment użytkownika
+        /// </summary>
+        public struct UserCommitment
+        {
+            public string vendorName;// nazwa sprzwdawcy
+            public string basicCoin;// podstawowa moneta
+            public string date;//data
+            public string legthOfPayword;// dlugosc paywaroda
+        }
 
+        /// <summary>
+        /// Struktura odzwierciedlajaca certyfikat usera
+        /// </summary>
+        public struct UserCertificate
+        {
+            public string brokerName; // nazwa banku
+            public string userName; // nazwa usera
+            public RSAParameters publicKey;//klucz publiczny usera
+            public DateTime expirationDate;// data wygaśnięcia certyfikatu
+        }
+
+        //Tablica przechowujaca dane uzytkownikow
+        public DataTable dt;
+
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
         public Users()
          {
              createUsersTable();
          }
+        /// <summary>
+        /// Metoda tworzaca tabele do przechowywania danych uzytkownikow
+        /// </summary>
         public void createUsersTable()
         {
             DataColumn[] tmp = new DataColumn[1];
@@ -33,6 +73,11 @@ namespace Vendor
             dt.PrimaryKey = tmp;
         }
 
+        /// <summary>
+        /// Metoda pozwalajaca na aktualizacje danych w tabeli
+        /// </summary>
+        /// <param name="ud"></param>//dane usera
+        /// <param name="issuedCoins"></param>//wydane monety
         public void updateDataTable(UsersData ud, string[] issuedCoins)
         {
             DataRow foundRow = dt.Rows.Find(issuedCoins[0]);
@@ -40,6 +85,11 @@ namespace Vendor
             string newValue = (Convert.ToInt32(foundRow["Ilość wydanych monet w sumie"]) + Convert.ToInt32(issuedCoins[1])).ToString();
             foundRow["Ilość wydanych monet w sumie"] = newValue; 
         }
+        /// <summary>
+        /// Metoda pozwalajaca na dodanie nowego wierszza do tabeli
+        /// </summary>
+        /// <param name="ud"></param>
+
        public void addNewRecord(UsersData ud)
         {
             DataRow row = dt.NewRow();
@@ -49,29 +99,6 @@ namespace Vendor
             dt.Rows.Add(row);
         }
 
-        public struct UsersData
-        {
-            public string userName;
-            public List<string> lastPayment;
-            public UserCertificate certificate;
-            public UserCommitment commitment;
-        }
-
-        public struct UserCommitment
-        {
-            public string vendorName;
-            public string basicCoin;
-            public string date;
-            public string legthOfPayword;
-        }
-
-        public struct UserCertificate
-        {
-            public string brokerName; // nazwa banku
-            public string userName; // nazwa usera
-            public RSAParameters publicKey;//klucz publiczny usera??????????????????????????????????????????????????????????????????????
-            public DateTime expirationDate;// data wygaśnięcia certyfikatu
-        }
 
 
 

@@ -10,15 +10,26 @@ using System.Windows.Forms;
 
 namespace Vendor
 {
+    //Klasa odwzorowujaca raport od Sprzedawcy
     public partial class Report : Form
     {
+        //Lista prechowuja rapory od Sprzedawcow
         List<UserReport> usersReports;
+
+        /// <summary>
+        ///Struktura odzwierciedlajaca raport usera
+        /// </summary>
        public struct UserReport
         {
-            public Users.UserCertificate uc;
-            public string[] lastPayment;
+            public Users.UserCertificate uc; //certyfikat
+            public string[] lastPayment;//ostatnia platnosc
         }
 
+        /// <summary>
+        /// Konstruktor klasy
+        /// </summary>
+        /// <param name="ur"></param>
+        /// <param name="userNames"></param>
         public Report(List<UserReport> ur, List<string> userNames)
         {
             InitializeComponent();
@@ -27,7 +38,10 @@ namespace Vendor
             UserReport report = findReport(getTextFromComboBox());
             
         }
-
+        /// <summary>
+        /// pozwala na doanie do comboboxa
+        /// </summary>
+        /// <param name="usernames"></param>
         public void addToComboBox(List<string> usernames)
         {
             for(int i = 0; i< usernames.Count; i++)
@@ -36,6 +50,10 @@ namespace Vendor
                
             }
         }
+        /// <summary>
+        /// pobiera text z comboboxa
+        /// </summary>
+        /// <returns></returns>
         public string getTextFromComboBox()
         {
             string tmp = null;
@@ -43,6 +61,11 @@ namespace Vendor
             return tmp;
         }
 
+        /// <summary>
+        /// Pozwla na wyszukanie raportu usera po nazwie usera
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <returns></returns>
         public UserReport findReport(string userName)
         {
             UserReport tmp = new UserReport();
@@ -60,6 +83,10 @@ namespace Vendor
 
         }
 
+        /// <summary>
+        /// Update wyswietlanych dnaych
+        /// </summary>
+        /// <param name="ur"></param>
         public void updateShowingData(UserReport ur)
         {
             Func<int> del = delegate()
@@ -76,6 +103,11 @@ namespace Vendor
             Invoke(del);
         }
 
+        /// <summary>
+        /// pokazanie raportu po wybrnaiu z listy
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void comboBoxUsers_SelectedIndexChanged(object sender, EventArgs e)
         {
             updateShowingData(findReport(getTextFromComboBox()));
