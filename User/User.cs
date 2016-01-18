@@ -526,7 +526,7 @@ namespace User
             Invoke(del);
         }
 
-        /
+        
         /// <summary>
         /// Pokazanie okna z danymi cetryfikatu
         /// </summary>
