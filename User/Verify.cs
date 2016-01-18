@@ -10,7 +10,10 @@ using System.Windows.Forms;
 
 namespace User
 {
-    //Okno pokazujące wynik rejestracji
+    
+    /// <summary>
+    /// Okno pokazujące wynik rejestracji
+    /// </summary>
     public partial class Verify : Form
     {
         public Verify( string text)

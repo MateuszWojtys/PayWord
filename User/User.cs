@@ -18,25 +18,44 @@ using System.IO.Compression;
 
 namespace User
 {
+    /// <summary>
+    /// Klasa odpowiadajaca aplikacji Usera
+    /// </summary>
     public partial class User : Form
     {
+        PayWord payWord = new PayWord();
         //Lista monet
         PayWord.StructPayWord spw = new PayWord.StructPayWord();
-
-        PayWord payWord = new PayWord();
         RSACryptoServiceProvider rsaCSP;
+        //Lista kluczy - prywatny i publiczny użytkownika
         List<RSAParameters> keys = new List<RSAParameters>();
 
-        //string przechowująca login podany podczas logowania - wykorzystywane do pobierania informacji o certyfikacie
+        //string przechowujący login podany podczas logowania - wykorzystywane do pobierania informacji o certyfikacie
         string mainLogin = null;
 
-        //Konstruktor głównego okna
+        /// <summary>
+        /// Struktura odpowiedzialna za commitment użytkownika wysyłany do sklepu
+        /// </summary>
+        public struct UserCommitment
+        {
+            public string vendorName;//nazwa sklepu
+            public string basicCoin;//podstawowa moneta payword'a
+            public string date; //data wysłania
+            public string legthOfPayword;//długość payword'a
+
+        }
+
+        
+        /// <summary>
+        /// Konstruktor głównego okna
+        /// </summary>
         public User()
         {
             InitializeComponent();
             //Wygaszenie niepotrzebnych elementów, które nie powinny być dostępne przez poprawnym zalogowaniem
             dontShowElements();
             rsaCSP = new RSACryptoServiceProvider();
+            //Generacja kluczy - prywatnego i publicznego
             keys = generateKeys();
             //Nasłuchiwanie na klientów TCP
             Thread tcpServerStartThread = new Thread(new ThreadStart(TcpServerStart));
@@ -45,7 +64,10 @@ namespace User
 
         
 
-        //Metoda odpowiadająca za nasłuchiwanie na klientów TCP
+        
+        /// <summary>
+        /// Metoda odpowiadająca za nasłuchiwanie na klientów TCP
+        /// </summary>
         private void TcpServerStart()
         {
             //Stworzenie listenera dla dowolnych IP na porcie 5001
@@ -65,7 +87,11 @@ namespace User
             }
         }
 
-        //Metoda odpowiedzialna za obsługę klienta
+        
+        /// <summary>
+        /// /Metoda odpowiedzialna za obsługę klienta
+        /// </summary>
+        /// <param name="client"></param>
         private void tcpHandler(object client)
         {
             TcpClient nclient = (TcpClient)client;
@@ -94,7 +120,7 @@ namespace User
                     Verify rv = new Verify("Zarejestrowano pomyślnie");
                     rv.ShowDialog();
                     break;
-
+                    //Obsluga gdy odebrany zostanie wynik weryfikacji płatności
                 case "#PaymentVerify":
                     bool ver = br.ReadBoolean();
                     string coin = br.ReadString();
@@ -111,14 +137,15 @@ namespace User
 
                     break;
 
-
-                   
-
                 default:
                     break;
             }
         }
 
+        /// <summary>
+        /// Generowanie kluczy - prywatnego i publicznego
+        /// </summary>
+        /// <returns></returns>
         private List<RSAParameters> generateKeys()
         {
             List<RSAParameters> tmpList = new List<RSAParameters>();
@@ -131,7 +158,10 @@ namespace User
             return tmpList;
 
         }
-        //Metoda pozwalająca na wygaszenie elementów - wygaszane są gdy klient nie jest zalogowany
+        
+        /// <summary>
+        /// Metoda pozwalająca na wygaszenie elementów - wygaszane są gdy klient nie jest zalogowany
+        /// </summary>
         private void dontShowElements()
         {
             buttonWyloguj.Visible = false;
@@ -144,11 +174,14 @@ namespace User
             buttonCommitment.Visible = false;
         }
         
-        //Metoda łącząca się z Loggerem
+        
+        /// <summary>
+        /// Metoda łącząca się z Loggerem i wysylajaca Log
+        /// </summary>
         public void connectAndSendToLogger()
         {
             TcpClient client = new TcpClient();
-            client.Connect("127.0.0.1", 5000);
+            client.Connect("127.0.0.1", 6000);
             NetworkStream stream = client.GetStream();
             BinaryWriter bw = new BinaryWriter(stream);
             bw.Write(DateTime.Now.ToString() );
@@ -161,18 +194,12 @@ namespace User
             
         }
 
-      public struct UserCommitment
-      {
-          public string vendorName;
-          public string basicCoin;
-          public string date;
-          public string legthOfPayword;
-          
-      }
-
+      /// <summary>
+      /// Generowanie Commitment do Sprzedawcy
+      /// </summary>
+      /// <returns></returns>
         private UserCommitment generateCommitmentToVendor()
       {
-          
           UserCommitment com = new UserCommitment();
           com.vendorName = "Sprzedawca";
           com.basicCoin = spw.basicCoin;
@@ -181,7 +208,12 @@ namespace User
           return com;
       }
 
-        //Przycisk odpowiedzialny za dokonywanie płatności - przesyłanie monet do sprzedawcy
+        
+        /// <summary>
+        /// Przycisk odpowiedzialny za dokonywanie płatności - przesyłanie monet do sprzedawcy
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonZaplac_Click(object sender, EventArgs e)
         {
             TcpClient client = new TcpClient();
@@ -204,6 +236,10 @@ namespace User
             comboBoxCoins.Text = "Wybierz monetę";
         }
 
+        /// <summary>
+        /// Wybieranie monety do płątności
+        /// </summary>
+        /// <returns></returns>
         private List<string> makePayment()
         {
             List<string> payment = new List<string>();
@@ -244,6 +280,11 @@ namespace User
             
 
         }
+        /// <summary>
+        /// Wysyłanie commitment so Sprzedawcy
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonCommitment_Click(object sender, EventArgs e)
         {
             TcpClient client = new TcpClient();
@@ -283,6 +324,11 @@ namespace User
             buttonZaplac.Visible = true;
         }
 
+        /// <summary>
+        /// Tworzenie podpisu
+        /// </summary>
+        /// <param name="s"></param>wiadomosc do podpisaania
+        /// <returns></returns>
         private byte[] createSign(string s)
         {
 
@@ -297,7 +343,12 @@ namespace User
             return rsaCSP.SignHash(hashedData, CryptoConfig.MapNameToOID("SHA1"));
         }
 
-        //Metoda odpowiedzialna za logowanie
+        
+        /// <summary>
+        /// Metoda odpowiedzialna za logowanie
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonLogIn_Click(object sender, EventArgs e)
         {
             //Pobranie wartosci z textBoxow - login i hasło
@@ -320,7 +371,12 @@ namespace User
             client.Close();    
         }
 
-        //Stworzenie hasha z hasła
+        
+        /// <summary>
+        /// Stworzenie hasha z hasła
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public string getHashFromPassword(string password)
         {
             //Stworzenie hasha z podanego przez usera hasła
@@ -335,8 +391,13 @@ namespace User
             return passwordHash;
         }
 
-        //Ustawienie okna dla zalogowanego użytkownika, jeśli wynik weryfikacji jest poprawny, w przeciwnym razie
-        // klient proszony jest o podanie loginu i hasła jeszcze raz
+        
+        /// <summary>
+        /// Ustawienie okna dla zalogowanego użytkownika, jeśli wynik weryfikacji jest poprawny,
+        /// w przeciwnym razie  klient proszony jest o podanie loginu i hasła jeszcze raz
+        /// </summary>
+        /// <param name="checking"></param> wynik weryfikacji
+        /// <param name="login"></param> login
         private void setFormForLoggedUser(bool checking, string login)
         {
             //Odkrycie elementów i udostepnienie funkcjonalności po poprawnym zalogowaniu
@@ -371,12 +432,14 @@ namespace User
             }
         }
 
-        private void textBoxHasło_TextChanged(object sender, EventArgs e)
-        {
+        
 
-        }
-
-        //Otwiera okienko do rejestracji
+        
+        /// <summary>
+        /// Otwiera okienko do rejestracji
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void linkLabelRejestracja_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             //Pokazuje okno do rejestracji
@@ -384,7 +447,12 @@ namespace User
             registration.ShowDialog();
         }
 
-        //Pozwala na ustawianie tekstu w textboxie 
+         
+        /// <summary>
+        /// Pozwala na ustawianie tekstu w textboxie 
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="s"></param>
         public void setTextBox(TextBox t, string s)
         {
             Func<int> del = delegate()
@@ -395,7 +463,12 @@ namespace User
             Invoke(del);
         }
 
-        //Pozwala na ustawianie tekstu w labelach
+        
+        /// <summary>
+        /// Pozwala na ustawianie tekstu w labelach
+        /// </summary>
+        /// <param name="l"></param>wybrany label
+        /// <param name="s"></param>tekst do ustawienia
         public void setLabel(Label l, string s)
         {
             Func<int> del = delegate()
@@ -406,7 +479,11 @@ namespace User
             Invoke(del);
         }
 
-        //Przeciążona metoda zamykania
+        
+        /// <summary>
+        /// Przeciążona metoda zamykania okna
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             base.OnFormClosing(e);
@@ -414,11 +491,16 @@ namespace User
 
         }
 
-        //Przycisk wylogowujący z sytemu
+        
+        /// <summary>
+        /// Przycisk wylogowujący z sytemu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonWyloguj_Click(object sender, EventArgs e)
         {
 
-            //On=kno powraca do stanu przed zalogowaniem, odpowiednie przyciski są zakrywane i odkrywane
+            //Okno powraca do stanu przed zalogowaniem, odpowiednie przyciski są zakrywane i odkrywane
             Func<int> del = delegate()
             {
                 textBoxHasło.Clear();
@@ -444,7 +526,12 @@ namespace User
             Invoke(del);
         }
 
-        //Pokazanie okna z danymi cetryfikatu
+        /
+        /// <summary>
+        /// Pokazanie okna z danymi cetryfikatu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void linkLabelCertificate_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             
@@ -452,7 +539,12 @@ namespace User
             c.Show();
         }
 
-        //Przycis pozwalający na wygenerowanie monet
+        
+        /// <summary>
+        /// Przycisk pozwalający na wygenerowanie monet
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonCoinsGeneration_Click(object sender, EventArgs e)
         {
             
@@ -479,5 +571,10 @@ namespace User
             buttonCommitment.Visible = true;
         }
 
+         private void textBoxHasło_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
+   
 }

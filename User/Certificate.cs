@@ -13,7 +13,10 @@ using System.Xml.Serialization;
 
 namespace User
 {
-    //Okno wyświetlające dane certyfikatu
+    
+    /// <summary>
+    /// Okno wyświetlające dane certyfikatu
+    /// </summary>
     public partial class Certificate : Form
     {
         //Konstruktror z parametrem (login klienta)
@@ -25,21 +28,34 @@ namespace User
             //Wyświtlenie danych z certyfikatu w oknie
             showInfo(info[0], info[1], info[2]);
         }
+        /// <summary>
+        /// Struktura odpowiadajaca podpisowi cyfrowemu
+        /// przechowuje ilosc bajtow(128) oraz bajty odpowiedzialna za sam podpis
+        /// </summary>
         public struct Sign
         {
             public int length;
             public byte[] sign;
         }
-        //struktura odpowiadająca certyfikatowi
+
+       
+        /// <summary>
+        /// struktura odpowiadająca certyfikatowi
+        /// </summary>
         public struct UserCertificate
         {
             public string brokerName; // nazwa banku
             public string userName; // nazwa usera
-            public RSAParameters publicKey;//klucz publiczny usera??????????????????????????????????????????????????????????????????????
+            public RSAParameters publicKey;//klucz publiczny usera
             public DateTime expirationDate;// data wygaśnięcia certyfikatu
         }
 
-        //Pobranie certyfikatu i przypisanie informacji do listy stringów
+        
+        /// <summary>
+        /// Pobranie certyfikatu i przypisanie informacji do listy stringów
+        /// </summary>
+        /// <param name="loginAsFileName"></param> login - nazwa pliku
+        /// <returns></returns>
         public List<string> getCertificateDatas(string loginAsFileName)
         {
             List<string> list = new List<string>();
@@ -55,7 +71,12 @@ namespace User
             return list;
         }
 
-        //zwraca xmla ktory zawiera certyfikat
+        
+        /// <summary>
+        /// zwraca xmla ktory zawiera certyfikat
+        /// </summary>
+        /// <param name="loginAsFileName"></param>login - nazwa pliku
+        /// <returns></returns>
         public string getCertificate(string loginAsFileName)
         {
             
@@ -63,6 +84,11 @@ namespace User
             return x;
         }
 
+        /// <summary>
+        /// Pobiera z pliku podpis certyfikatu
+        /// </summary>
+        /// <param name="loginAsFileName"></param> login- nazwa pliku
+        /// <returns></returns>
         public Sign getCertificateSign(string loginAsFileName)
         {
             Sign s = new Sign();
@@ -76,7 +102,13 @@ namespace User
             s.sign = sign;
             return s;
         }
-        //Pokazanie informacji w oknie
+        
+        /// <summary>
+        /// Pokazanie informacji w oknie
+        /// </summary>
+        /// <param name="broker"></param>nazwa banku
+        /// <param name="user"></param>nazwa usera
+        /// <param name="date"></param>data
         public void showInfo(string broker, string user, string date)
         {
             labelBank.Text = "Nazwa banku: " + broker;

@@ -15,7 +15,12 @@ namespace User
             public List<string> payingCoins;
         }
 
-        //Metoda pozwalająca na wygenerowanie łańcucha monet z parametrem, który mówi o długości łańcucha (ilość monet)
+        
+        /// <summary>
+        /// Metoda pozwalająca na wygenerowanie łańcucha monet z parametrem, który mówi o długości łańcucha (ilość monet)
+        /// </summary>
+        /// <param name="payWordLength"></param> ilosc monet
+        /// <returns></returns>
         public StructPayWord generatePayWord(int payWordLength)
         {
            //Tworzenie klasy odpowiedzialnej za algorytm MD5
@@ -56,7 +61,7 @@ namespace User
                 }
 
             }
-
+            // Odwrocenie kolejnosci monet
             for (int i = 0; i < spw.payingCoins.Count; i ++ )
             {
                 Console.WriteLine("Moneta " + i + " " + spw.payingCoins[i]);
@@ -69,6 +74,11 @@ namespace User
             return spw;
         }
 
+        /// <summary>
+        /// Metoda odwracajaca elementy w liscie
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         private List<string> rotateList(List<string> input)
         {
             List<string> output = new List<string>();
@@ -80,7 +90,11 @@ namespace User
             return output;
 
         }
-        //Metoda pozwalająca na wylosowanie pierwszej liczby do łańcucha - liczba jest zwracana
+      
+        /// <summary>
+        /// Metoda pozwalająca na wylosowanie pierwszej liczby do łańcucha - liczba jest zwracana
+        /// </summary>
+        /// <returns></returns>
         static string getRandomNumber()
         {
             string randomNumber = null;
@@ -95,7 +109,13 @@ namespace User
             return randomNumber;
         }
 
-        //Metoda pozwalająca na uzyskanie hasha z stringa
+        
+        /// <summary>
+        /// Metoda pozwalająca na uzyskanie hasha z stringa
+        /// </summary>
+        /// <param name="md5Hash"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public  string getMD5Hash(MD5 md5Hash, string input)
         {
 

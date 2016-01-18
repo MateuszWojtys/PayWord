@@ -16,13 +16,16 @@ using System.Xml.Serialization;
 namespace User
 {
 
-    //Okienko pozwalające na wpisanie danych potrzebnych do rejestracji
+    
+    /// <summary>
+    /// Okienko pozwalające na wpisanie danych potrzebnych do rejestracji
+    /// </summary>
     public partial class Registration : Form
     {
 
-        RSAParameters pKey;
-
-        // struktura odzwierciedlająca dane użytkownika do rejestracji
+        // <summary>
+        /// struktura odzwierciedlająca dane użytkownika do rejestracji
+        /// </summary>
         public struct UserRegistrationData
         {
             public string name; //imie
@@ -33,6 +36,13 @@ namespace User
             public RSAParameters publicKey; // klucz publiczny
         }
 
+        /// <summary>
+        /// klucz publiczny
+        /// </summary>
+        RSAParameters pKey;
+
+        
+
         //Konstruktor okienka rejestracji
         public Registration(RSAParameters tmpPublicKey)
         {
@@ -42,11 +52,12 @@ namespace User
         }
 
 
-        
-
-        //Pozwala na sprawdzenie poprawności danych wpisanych przez usera (głównie czy pola nie są puste)
-        // Sprawdzenie czy powtorzone haslo jest takie samo jak haslo poprzednie
-        // zwraca true jak jest wszystko ok, false jak nie
+        /// <summary>
+        /// Pozwala na sprawdzenie poprawności danych wpisanych przez usera (głównie czy pola nie są puste)
+        /// Sprawdzenie czy powtorzone haslo jest takie samo jak haslo poprzednie
+        /// zwraca true jak jest wszystko ok, false jak nie
+        /// </summary>
+        /// <returns></returns>
         public bool checkRegistrationData()
         {
             bool check = true;
@@ -85,7 +96,11 @@ namespace User
             return check;
         }
 
-        //Metoda pozwalająca na pobranie danych z textBoxow - stworzenie nowej struktury UserRegistrationData
+   
+        /// <summary>
+        /// Metoda pozwalająca na pobranie danych z textBoxow - stworzenie nowej struktury UserRegistrationData
+        /// </summary>
+        /// <returns></returns>
         private UserRegistrationData getRegistrationData()
         {
             UserRegistrationData urd = new UserRegistrationData();
@@ -100,12 +115,22 @@ namespace User
 
 
         //Zamyka okienko po naciśnięciu Anuluj
+        /// <summary>
+        /// //Zamyka okienko po naciśnięciu Anuluj
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonAnuluj_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
-        //Pozwala na rejestracje - wysłanie do banku 
+         
+        /// <summary>
+        /// Pozwala na rejestracje - wysłanie do banku 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonZarejestruj_Click(object sender, EventArgs e)
         {
             bool tmp = checkRegistrationData();
@@ -121,7 +146,11 @@ namespace User
             
         }
 
-        //Wysyłanie do banku pliku xml z danymi podanymi przez użytkownika jako parametr
+        
+        /// <summary>
+        /// Wysyłanie do banku pliku xml z danymi podanymi przez użytkownika 
+        /// </summary>
+        /// <param name="urd"></param>dane potrzebne do rejestracji
         private void sendUrdAsXML(UserRegistrationData urd)
         {
             try
@@ -155,7 +184,13 @@ namespace User
             }
         }
 
-        //Tworzenie hasha ze stringa
+        
+        /// <summary>
+        /// Tworzenie hasha ze stringa
+        /// </summary>
+        /// <param name="md5Hash"></param>
+        /// <param name="input"></param> string z ktorego ma byc stworozny hash
+        /// <returns></returns>
         public string getMD5Hash(MD5 md5Hash, string input)
         {
 
