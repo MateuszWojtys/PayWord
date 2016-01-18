@@ -40,8 +40,9 @@ namespace Broker
         {
             InitializeComponent();
             rsaCSP = new RSACryptoServiceProvider();
-            //generacja własnych kluczy - publiczny i prywatny
-            generateOwnKeys();
+            
+            //wczytywanie własnych kluczy - publiczny i prywatny
+            readKeys();
             clients = new Clients();
             cd = new ClientsData();
             allReports = new List<List<Clients.UserReport>>();
@@ -118,7 +119,7 @@ namespace Broker
                 case "#Report":
                     //Dekompresja odbieranych danych
                     GZipStream GZipStream = new GZipStream(stream, CompressionMode.Decompress);
-                    byte[] bufor = new byte[1024];
+                    byte[] bufor = new byte[5000];
                     GZipStream.Read(bufor, 0, bufor.Length);
                     //Przejście z bitów na stringi
                     StringReader StringReader = new StringReader(UnicodeEncoding.Unicode.GetString(bufor, 0, bufor.Length));
@@ -142,33 +143,37 @@ namespace Broker
         #region Klucze
 
         /// <summary>
-        /// Metoda pozwalajaca na wygenerowanie klucza prywatnego i publicznego
+        /// Nieużywana funkcja, pozwala wygenerowac klucze i zapisac do pliku
         /// </summary>
-        private void generateOwnKeys()
+        private void generateKeys()
         {
-            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-            string str = rsa.ToXmlString(true);
-            string[] tmp = new string[1];
-            tmp[0] = str;
-            privateKey = rsa.ExportParameters(true); // prywatny
-            publicKey = rsa.ExportParameters(false); // publiczny
-            savePublicKey(publicKey);
+            rsaCSP = new RSACryptoServiceProvider();
+            string str = rsaCSP.ToXmlString(false);
+            string str1 = rsaCSP.ToXmlString(true);
+            string[] tmp1 = new string[2];
+            tmp1[0] = str;
+            string[] tmp2 = new string[1];
+            tmp2[0] = str1;
+            System.IO.File.WriteAllLines(@"D:\Studia\PKRY\PayWord\Klucze\BrokerPublicKey.txt", tmp1);
+            System.IO.File.WriteAllLines(@"D:\Studia\PKRY\PayWord\Klucze\BrokerKeys.txt", tmp2);
         }
-
 
         /// <summary>
-        /// Metoda pozwalajaca na zapisanie klucza publicznego do pliku tekstowego,
-        /// tak żeby inne aplikacje mogły z niego korzystać
+        /// Wczytywanie własnych kluczy
         /// </summary>
-        /// <param name="publicKey"></param> parametrem jest klucz publiczny Banku
-
-        private void savePublicKey(RSAParameters publicKey)
+        private void readKeys()
         {
-            XmlSerializer Serializer = new XmlSerializer(typeof(RSAParameters));
-            StringWriter StringWriter = new StringWriter();
-            Serializer.Serialize(StringWriter, publicKey);
-            System.IO.File.WriteAllText(@"D:\Studia\PKRY\PayWord\BrokerPublicKey.xml", StringWriter.ToString());
+
+            string[] str = System.IO.File.ReadAllLines(@"D:\Studia\PKRY\PayWord\Klucze\BrokerKeys.txt");
+            rsaCSP = new RSACryptoServiceProvider();
+            rsaCSP.FromXmlString(str[0]);
+            publicKey = rsaCSP.ExportParameters(false);
+            privateKey = rsaCSP.ExportParameters(true);
+
         }
+  
+
+        
 
         #endregion
 
