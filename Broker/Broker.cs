@@ -28,7 +28,7 @@ namespace Broker
 
         Clients clients;
         ClientsData  cd;
-        List<List<Clients.UserReport>> allReports; // lista przechowująca raporty od sprzedawców nt płatności klientów
+        Report report;
         RSACryptoServiceProvider rsaCSP; 
         RSAParameters publicKey; // klucz publiczny banku
         RSAParameters privateKey; // klucz prywatny banku
@@ -45,7 +45,7 @@ namespace Broker
             readKeys();
             clients = new Clients();
             cd = new ClientsData();
-            allReports = new List<List<Clients.UserReport>>();
+            report = new Report();
             //Wczytanie z pliku XML danych dot. klientów zarejestrowanych w systemie
             clients.readFromXMLUsers(clients.dt);
 
@@ -127,7 +127,8 @@ namespace Broker
                     XmlSerializer xml = new XmlSerializer(typeof(List<Clients.UserReport>));
                     List<Clients.UserReport> ur = (List<Clients.UserReport>)xml.Deserialize(StringReader);
                     // Dodanie raportu do listy
-                    allReports.Add(ur);
+                    report.allReports.Add(ur);
+                    report.addToComboBox();
                     break;
 
                 default:
@@ -345,10 +346,19 @@ namespace Broker
             cd.Show();
             
         }
+
+        private void linkLabelReports_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            report.Show();
+        }
+
+
         private void Form1_Load(object sender, EventArgs e)
         {
 
         }
+
+       
        
         
     }

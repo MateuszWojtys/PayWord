@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.linkLabelDataUsers = new System.Windows.Forms.LinkLabel();
+            this.linkLabelReports = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // linkLabelDataUsers
@@ -42,11 +43,23 @@
             this.linkLabelDataUsers.Text = "Wyświetl dane o klientach";
             this.linkLabelDataUsers.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelDataUsers_LinkClicked);
             // 
+            // linkLabelReports
+            // 
+            this.linkLabelReports.AutoSize = true;
+            this.linkLabelReports.Location = new System.Drawing.Point(12, 36);
+            this.linkLabelReports.Name = "linkLabelReports";
+            this.linkLabelReports.Size = new System.Drawing.Size(169, 13);
+            this.linkLabelReports.TabIndex = 1;
+            this.linkLabelReports.TabStop = true;
+            this.linkLabelReports.Text = "Wyświetl raporty od Sprzedawców";
+            this.linkLabelReports.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelReports_LinkClicked);
+            // 
             // Broker
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 262);
+            this.Controls.Add(this.linkLabelReports);
             this.Controls.Add(this.linkLabelDataUsers);
             this.Name = "Broker";
             this.Text = "Broker";
@@ -59,6 +72,7 @@
         #endregion
 
         private System.Windows.Forms.LinkLabel linkLabelDataUsers;
+        private System.Windows.Forms.LinkLabel linkLabelReports;
     }
 }
 
