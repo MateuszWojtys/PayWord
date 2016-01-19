@@ -133,6 +133,7 @@
             this.textBoxHaslo.Name = "textBoxHaslo";
             this.textBoxHaslo.Size = new System.Drawing.Size(143, 20);
             this.textBoxHaslo.TabIndex = 13;
+            this.textBoxHaslo.UseSystemPasswordChar = true;
             // 
             // textBoxHaslo2
             // 
@@ -140,6 +141,7 @@
             this.textBoxHaslo2.Name = "textBoxHaslo2";
             this.textBoxHaslo2.Size = new System.Drawing.Size(143, 20);
             this.textBoxHaslo2.TabIndex = 14;
+            this.textBoxHaslo2.UseSystemPasswordChar = true;
             // 
             // buttonZarejestruj
             // 

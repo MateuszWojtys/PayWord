@@ -364,7 +364,7 @@ namespace User
         {
             //Pobranie wartosci z textBoxow - login i hasło
             string login = textBoxLogin.Text;
-            string password = textBoxHasło.Text;
+            string password = textBoxHasło.Text;//textBoxHasło.Text;
 
             mainLogin = textBoxLogin.Text;
             //Połącznie z bankiem
@@ -441,7 +441,7 @@ namespace User
             else
             {
                 setTextBox(textBoxLogin, "Błąd! Spróbuj jeszcze raz");
-                setTextBox(textBoxHasło, "Błąd! Spróbuj jeszcze raz");
+                setTextBox(textBoxHasło, " ");
                 
             }
         }

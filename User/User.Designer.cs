@@ -83,10 +83,12 @@
             // 
             // textBoxHasło
             // 
-            this.textBoxHasło.Location = new System.Drawing.Point(70, 75);
+            this.textBoxHasło.Location = new System.Drawing.Point(70, 78);
             this.textBoxHasło.Name = "textBoxHasło";
+            this.textBoxHasło.PasswordChar = '*';
             this.textBoxHasło.Size = new System.Drawing.Size(143, 20);
             this.textBoxHasło.TabIndex = 4;
+            this.textBoxHasło.UseSystemPasswordChar = true;
             this.textBoxHasło.TextChanged += new System.EventHandler(this.textBoxHasło_TextChanged);
             // 
             // buttonLogIn
