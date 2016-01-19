@@ -30,6 +30,7 @@
         {
             this.linkLabelDataUsers = new System.Windows.Forms.LinkLabel();
             this.linkLabelReports = new System.Windows.Forms.LinkLabel();
+            this.linkLabelRozliczenie = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // linkLabelDataUsers
@@ -46,7 +47,7 @@
             // linkLabelReports
             // 
             this.linkLabelReports.AutoSize = true;
-            this.linkLabelReports.Location = new System.Drawing.Point(12, 36);
+            this.linkLabelReports.Location = new System.Drawing.Point(12, 35);
             this.linkLabelReports.Name = "linkLabelReports";
             this.linkLabelReports.Size = new System.Drawing.Size(169, 13);
             this.linkLabelReports.TabIndex = 1;
@@ -54,11 +55,23 @@
             this.linkLabelReports.Text = "Wyświetl raporty od Sprzedawców";
             this.linkLabelReports.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelReports_LinkClicked);
             // 
+            // linkLabelRozliczenie
+            // 
+            this.linkLabelRozliczenie.AutoSize = true;
+            this.linkLabelRozliczenie.Location = new System.Drawing.Point(12, 62);
+            this.linkLabelRozliczenie.Name = "linkLabelRozliczenie";
+            this.linkLabelRozliczenie.Size = new System.Drawing.Size(61, 13);
+            this.linkLabelRozliczenie.TabIndex = 2;
+            this.linkLabelRozliczenie.TabStop = true;
+            this.linkLabelRozliczenie.Text = "Rozliczenie";
+            this.linkLabelRozliczenie.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelRozliczenie_LinkClicked);
+            // 
             // Broker
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 262);
+            this.ClientSize = new System.Drawing.Size(299, 208);
+            this.Controls.Add(this.linkLabelRozliczenie);
             this.Controls.Add(this.linkLabelReports);
             this.Controls.Add(this.linkLabelDataUsers);
             this.Name = "Broker";
@@ -73,6 +86,7 @@
 
         private System.Windows.Forms.LinkLabel linkLabelDataUsers;
         private System.Windows.Forms.LinkLabel linkLabelReports;
+        private System.Windows.Forms.LinkLabel linkLabelRozliczenie;
     }
 }
 

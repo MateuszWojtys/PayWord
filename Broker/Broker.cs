@@ -335,6 +335,7 @@ namespace Broker
         /// <param name="e"></param>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            paymentsAdjustment();
             base.OnFormClosing(e);
             System.Environment.Exit(1);
         }
@@ -379,6 +380,14 @@ namespace Broker
             }
 
         }
+        /// <summary>
+        /// Dokonuje symbolicznego rozliczenia pomiędzy klientami a Sprzedawcą - pobiera odpowiednia kwote
+        /// z konta usera i przelewa na konto Sprzedawcy
+        /// </summary>
+        private void paymentsAdjustment()
+        {
+            connectAndSendToLogger("-", "Dokonałem rozliczenia pomiędzy użytkownikiem a Bankiem");
+        }
         private void linkLabelReports_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             report.Show();
@@ -388,6 +397,11 @@ namespace Broker
         private void Form1_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void linkLabelRozliczenie_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            paymentsAdjustment();
         }
 
        
