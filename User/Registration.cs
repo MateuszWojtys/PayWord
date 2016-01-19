@@ -118,8 +118,9 @@ namespace User
             tmp2[0] = str1;
             System.IO.File.WriteAllLines(@"D:\Studia\PKRY\PayWord\Klucze\" + urd.login + "PublicKey.txt", tmp1);
             System.IO.File.WriteAllLines(@"D:\Studia\PKRY\PayWord\Klucze\" + urd.login + "BrokerKeys.txt", tmp2);
-
+            connectAndSendToLogger("-", "Wygenerowana została para kluczy dla użytkownika " + urd.login);
             urd.publicKey = rsaCSP.ExportParameters(false);
+            connectAndSendToLogger("-", "Klucz publiczny użytkownika " + urd.login + " został udostępniony");
             return urd;
         }
 
@@ -135,7 +136,31 @@ namespace User
             this.Close();
         }
 
-         
+        /// <summary>
+        /// Metoda łącząca się z Loggerem i wysylajaca Log
+        /// </summary>
+        public void connectAndSendToLogger(string destination, string message)
+        {
+            try
+            {
+                TcpClient client = new TcpClient();
+                client.Connect("127.0.0.1", 6000);
+                NetworkStream stream = client.GetStream();
+                BinaryWriter bw = new BinaryWriter(stream);
+                bw.Write(DateTime.Now.ToString());
+                bw.Write("User");
+                bw.Write(destination);
+                bw.Write(message);
+                bw.Close();
+                stream.Close();
+                client.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+
+        }
         /// <summary>
         /// Pozwala na rejestracje - wysłanie do banku 
         /// </summary>
@@ -144,6 +169,7 @@ namespace User
         private void buttonZarejestruj_Click(object sender, EventArgs e)
         {
             bool tmp = checkRegistrationData();
+            connectAndSendToLogger("-", "Sprawdzona została poprawność wprowadzonych danych do rejestracji");
             if (tmp == true)
             {
                 UserRegistrationData urd = getRegistrationData();
@@ -152,6 +178,7 @@ namespace User
                 urd.password = getMD5Hash(md5, urd.password);
                 //Dane wysyłane są do banku jako plik xml
                 sendUrdAsXML(urd);
+                
             }
             
         }
@@ -186,6 +213,7 @@ namespace User
                 MemoryStream.Close();
                 stream.Close();
                 this.Close();
+                connectAndSendToLogger("Broker", "Dane rejestracyjne zostały wysłane do Brokera");
             }
             catch(Exception e)
             {

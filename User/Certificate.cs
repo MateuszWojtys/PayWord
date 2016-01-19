@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,7 +51,31 @@ namespace User
             public DateTime expirationDate;// data wygaśnięcia certyfikatu
         }
 
-        
+        /// <summary>
+        /// Metoda łącząca się z Loggerem i wysylajaca Log
+        /// </summary>
+        public void connectAndSendToLogger(string destination, string message)
+        {
+            try
+            {
+                TcpClient client = new TcpClient();
+                client.Connect("127.0.0.1", 6000);
+                NetworkStream stream = client.GetStream();
+                BinaryWriter bw = new BinaryWriter(stream);
+                bw.Write(DateTime.Now.ToString());
+                bw.Write("User");
+                bw.Write(destination);
+                bw.Write(message);
+                bw.Close();
+                stream.Close();
+                client.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+
+        }
         /// <summary>
         /// Pobranie certyfikatu i przypisanie informacji do listy stringów
         /// </summary>

@@ -107,6 +107,7 @@ namespace User
                 case "#LogInVerify":
                     string login = br.ReadString();
                     bool verify = br.ReadBoolean();
+                    connectAndSendToLogger("-", "Wynik weryfikacji logowania użytkownika" + login +" jest równy " + verify.ToString());
                     if(verify == true)
                     {
                         readKeys();
@@ -118,8 +119,8 @@ namespace User
                     break;
                 //Obsługa gdy odebrany zostanie nagłówek odpowiedzialny za wynik rejestracji
                 case "#RegistrationVerify":
-                    
 
+                    connectAndSendToLogger("-", "Wynik rejesetracji w systemi jest pozytywny");
                     //Pokazywane jest okno, które informuje i poprawnym wyniku weryfikacji
                     Verify rv = new Verify("Zarejestrowano pomyślnie");
                     rv.ShowDialog();
@@ -138,7 +139,7 @@ namespace User
                          v = new Verify("Płatność monetą: " + coin + " nie została przyjęta");
                     }
                     v.ShowDialog();
-
+                    connectAndSendToLogger("-", "Wynik weryfikacji płatności monetą " + coin + " jest równy " + ver);
                     break;
 
                 default:
@@ -157,7 +158,7 @@ namespace User
             rsaCSP.FromXmlString(str[0]);
             publicKey = rsaCSP.ExportParameters(false);
             privateKey = rsaCSP.ExportParameters(true);
-
+            connectAndSendToLogger("-", "Wczytałem klucze użytkownika " + mainLogin);
         }
         
         /// <summary>
@@ -179,19 +180,26 @@ namespace User
         /// <summary>
         /// Metoda łącząca się z Loggerem i wysylajaca Log
         /// </summary>
-        public void connectAndSendToLogger()
+        public void connectAndSendToLogger(string destination, string message)
         {
+            try
+            {
             TcpClient client = new TcpClient();
             client.Connect("127.0.0.1", 6000);
             NetworkStream stream = client.GetStream();
             BinaryWriter bw = new BinaryWriter(stream);
             bw.Write(DateTime.Now.ToString() );
             bw.Write("User");
-            bw.Write("Bank");
-            bw.Write("Testowy tekst ");
+            bw.Write(destination);
+            bw.Write(message);
             bw.Close();
             stream.Close();
             client.Close();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
             
         }
 
@@ -206,6 +214,7 @@ namespace User
           com.basicCoin = spw.basicCoin;
           com.date = DateTime.Now.ToString();
           com.legthOfPayword = spw.payingCoins.Count.ToString();
+          connectAndSendToLogger("-", "Wygenerowany został commitment użytkownika " + mainLogin);
           return com;
       }
 
@@ -232,7 +241,7 @@ namespace User
             
             
             client.Close();
-
+            connectAndSendToLogger("Vendor", "Wysłana została platnosc nr " + payment[1] + " moneta " + payment[0]);
             comboBoxCoins.Items.Remove(comboBoxCoins.SelectedItem);
             comboBoxCoins.Text = "Wybierz monetę";
         }
@@ -298,7 +307,7 @@ namespace User
             bw.Write(c.getCertificateDatas(mainLogin)[1]);
             bw.Write(c.getCertificate(mainLogin));
             Certificate.Sign sign = c.getCertificateSign(mainLogin);
-
+            
             //podpis certyfikatu
             bw.Write(sign.length); //  dlugosc podpisu
             bw.Write(sign.sign); // podpis
@@ -318,10 +327,11 @@ namespace User
             ms.Close();
 
             byte[] commitmentSign =  createSign(sw.ToString());
+            connectAndSendToLogger("-", "Wygenerowany commitment został podpisany przy użyciu klucza prywatnego użytkownika " + mainLogin);
             bw.Write(commitmentSign.Length);
             bw.Write(commitmentSign);
             client.Close();
-
+            connectAndSendToLogger("Vendor", "Do sprzedawcy wysłany został commitment użytkownika " + mainLogin);
             buttonZaplac.Visible = true;
         }
 
@@ -369,7 +379,8 @@ namespace User
             //Wysłanie hasha z hasła
             bw.Write(getHashFromPassword(password));
             stream.Close();
-            client.Close();    
+            client.Close();
+            connectAndSendToLogger("Broker", "Do banku wysłany został login" + login + " wraz z hashem " + getHashFromPassword(password) + " z hasła");
         }
 
         
@@ -389,7 +400,9 @@ namespace User
                 sBuilder.Append(data[i].ToString("x2"));
             }
             string passwordHash = sBuilder.ToString();
+            connectAndSendToLogger("-", "Wygenerowany został hash z podanego hasła: " + password);
             return passwordHash;
+            
         }
 
         
@@ -522,6 +535,7 @@ namespace User
                 numericUpDownCoinsNumber.Visible = false;
                 buttonCommitment.Visible = false;
                 comboBoxCoins.Items.Clear();
+                connectAndSendToLogger("-","Użytkownik " + mainLogin + " wylogował się");
                 return 0;
             };
             Invoke(del);

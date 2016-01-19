@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Threading;
+using System.Net.Sockets;
+using System.IO;
 namespace User
 {
     public class PayWord
@@ -71,6 +73,7 @@ namespace User
                 {
                     Console.WriteLine("Po odwroceniu moneta " + i + " " + spw.payingCoins[i]);
                 }
+                connectAndSendToLogger("-", "Wygenerowany został  PayWord składający się z " + spw.payingCoins.Count + " monet");
             return spw;
         }
 
@@ -132,6 +135,30 @@ namespace User
             // zwraca hash - stringa
             return sBuilder.ToString();
         }
+        /// <summary>
+        /// Metoda łącząca się z Loggerem i wysylajaca Log
+        /// </summary>
+        public void connectAndSendToLogger(string destination, string message)
+        {
+            try
+            {
+                TcpClient client = new TcpClient();
+                client.Connect("127.0.0.1", 6000);
+                NetworkStream stream = client.GetStream();
+                BinaryWriter bw = new BinaryWriter(stream);
+                bw.Write(DateTime.Now.ToString());
+                bw.Write("User");
+                bw.Write(destination);
+                bw.Write(message);
+                bw.Close();
+                stream.Close();
+                client.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
 
+        }
     }
 }
