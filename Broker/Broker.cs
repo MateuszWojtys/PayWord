@@ -42,13 +42,14 @@ namespace Broker
             rsaCSP = new RSACryptoServiceProvider();
             
             //wczytywanie własnych kluczy - publiczny i prywatny
+            
             readKeys();
             clients = new Clients();
             cd = new ClientsData();
             report = new Report();
             //Wczytanie z pliku XML danych dot. klientów zarejestrowanych w systemie
             clients.readFromXMLUsers(clients.dt);
-
+            connectAndSendToLogger("-", "Wczytane zostały dane dotyczace klientów zarejestrownych w systemie");
             //Nasłuchiwanie na klientów TCP
             Thread tcpServerStartThread = new Thread(new ThreadStart(TcpServerStart));
             tcpServerStartThread.Start();
@@ -100,19 +101,24 @@ namespace Broker
                     string login = br.ReadString();
                     //odczytanie hasha z hasła
                     string passwordHash = br.ReadString();
+                    connectAndSendToLogger("-", "Otrzymałem żądanie weryfikacji logowania. Podany login: " + login + " hash z hasła: " + passwordHash);
                     //weryfikacja poprawności loginu i hasła
                     bool verify = clients.checkUserData(login, passwordHash);
+                    connectAndSendToLogger("User: " + login, "Wysłany został wynik weryfikacji logowania (" + verify + ")");
                     //Wysłanie do klienta wyniku weryfikacji wraz z loginem podanym przez klienta w żądaniu
                     sendLogInVerify(login, verify);
+                    
                     break;
                     //Obsługa żądania rejestracji w systemie
                 case "#Registration":
                     //Odebranie informacji przesłanych przez klienta  w żądaniu
                     getRegistrationData(stream);
+                    connectAndSendToLogger("-", "Odebrane zostały dane do rejestracji");
                     //ponowne wczytanie listy haseł
                     clients.getDataFromFile();
                     //Wysłanie wyniku rejestracji
                     sendRegistrationVerify();
+                    connectAndSendToLogger("User", "Wysłany został pozytywny wynik rejestracji");
                     break;
 
                     //Obsługa odebrania raportu od sprzedawcy
@@ -129,6 +135,7 @@ namespace Broker
                     // Dodanie raportu do listy
                     report.allReports.Add(ur);
                     report.addToComboBox();
+                    connectAndSendToLogger("-", "Odebrane i zapisane zostało " + ur.Count + " raportów od Sprzedawcy");
                     break;
 
                 default:
@@ -170,6 +177,7 @@ namespace Broker
             rsaCSP.FromXmlString(str[0]);
             publicKey = rsaCSP.ExportParameters(false);
             privateKey = rsaCSP.ExportParameters(true);
+            connectAndSendToLogger("-", "Wczytana została para kluczy Banku");
 
         }
   
@@ -346,7 +354,31 @@ namespace Broker
             cd.Show();
             
         }
+        /// <summary>
+        /// Metoda łącząca się z Loggerem i wysylajaca Log
+        /// </summary>
+        public void connectAndSendToLogger(string destination, string message)
+        {
+            try
+            {
+                TcpClient client = new TcpClient();
+                client.Connect("127.0.0.1", 6000);
+                NetworkStream stream = client.GetStream();
+                BinaryWriter bw = new BinaryWriter(stream);
+                bw.Write(DateTime.Now.ToString());
+                bw.Write("Broker");
+                bw.Write(destination);
+                bw.Write(message);
+                bw.Close();
+                stream.Close();
+                client.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
 
+        }
         private void linkLabelReports_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             report.Show();
